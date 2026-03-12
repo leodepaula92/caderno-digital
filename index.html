@@ -3,94 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Caderno Digital ☁️</title>
+    <title>Caderno Cloud Leo</title>
     <style>
-        :root {
-            --bg-color: #e9ecef;
-            --card-bg: #ffffff;
-            --primary-blue: #3498db;
-            --text-dark: #2c3e50;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 40px 20px;
-        }
-
-        .header { text-align: center; margin-bottom: 30px; }
-        .header h1 { color: var(--text-dark); margin-bottom: 5px; }
-
-        .card {
-            background: var(--card-bg);
-            width: 100%;
-            max-width: 700px;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            box-sizing: border-box;
-        }
-
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; color: #444; }
-        
-        input, textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-
-        .btn-salvar {
-            width: 100%;
-            background-color: var(--primary-blue);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
+        body { font-family: 'Segoe UI', sans-serif; background-color: #e9ecef; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .card { background: white; width: 100%; max-width: 600px; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); box-sizing: border-box; }
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+        label { font-weight: bold; margin-bottom: 5px; color: #333; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; box-sizing: border-box; }
+        .btn-salvar { width: 100%; background-color: #3498db; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .btn-salvar:hover { background-color: #2980b9; }
-
-        /* Estilo das Notas vindas do Banco */
-        .notes-container { width: 100%; max-width: 700px; margin-top: 30px; }
-        
-        .note-item { 
-            background: white; 
-            padding: 20px; 
-            border-radius: 10px; 
-            margin-bottom: 15px; 
-            border-left: 6px solid var(--primary-blue);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            position: relative;
-        }
-
-        .note-item h3 { margin: 10px 0; color: var(--text-dark); }
-        .note-item p { white-space: pre-wrap; color: #555; }
-        .note-item small { color: #888; }
-
-        .btn-excluir {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: #ff7675;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 12px;
-        }
+        .notes-container { width: 100%; max-width: 600px; margin-top: 30px; }
+        .note-item { background: white; padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 6px solid #3498db; position: relative; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .btn-excluir { position: absolute; top: 10px; right: 10px; background: #ff7675; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -103,4 +28,76 @@
     <div class="card">
         <div class="form-group">
             <label>Assunto:</label>
-            <input type="text" id="assunto" placeholder="Ex
+            <input type="text" id="assunto" placeholder="Ex: Aula de Firebase">
+        </div>
+        <div class="form-group">
+            <label>Data:</label>
+            <input type="date" id="data">
+        </div>
+        <div class="form-group">
+            <label>Conteúdo:</label>
+            <textarea id="conteudo" rows="5" placeholder="Escreva aqui..."></textarea>
+        </div>
+        <button class="btn-salvar" id="btnSalvar">Salvar no Caderno</button>
+    </div>
+
+    <div id="listaNotas" class="notes-container"></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAcQ-eIuJLxLCelWXb40BBWSo6OlndAWoY",
+            authDomain: "meu-caderno-digital.firebaseapp.com",
+            databaseURL: "https://meu-caderno-digital-default-rtdb.firebaseio.com",
+            projectId: "meu-caderno-digital",
+            storageBucket: "meu-caderno-digital.firebasestorage.app",
+            messagingSenderId: "300654804825",
+            appId: "1:300654804825:web:4272fc4c67be0b485d1648"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const notasRef = ref(db, 'notas');
+
+        document.getElementById('data').valueAsDate = new Date();
+
+        document.getElementById('btnSalvar').onclick = () => {
+            const assunto = document.getElementById('assunto').value;
+            const data = document.getElementById('data').value;
+            const conteudo = document.getElementById('conteudo').value;
+
+            if (assunto && conteudo) {
+                push(notasRef, { assunto, data, conteudo });
+                document.getElementById('assunto').value = "";
+                document.getElementById('conteudo').value = "";
+            } else {
+                alert("Preencha todos os campos!");
+            }
+        };
+
+        onValue(notasRef, (snapshot) => {
+            const lista = document.getElementById('listaNotas');
+            lista.innerHTML = "";
+            const notas = snapshot.val();
+            if (notas) {
+                Object.keys(notas).reverse().forEach(id => {
+                    const n = notas[id];
+                    lista.innerHTML += `
+                        <div class="note-item">
+                            <button class="btn-excluir" onclick="window.apagar('${id}')">Excluir</button>
+                            <small>${n.data}</small>
+                            <h3>${n.assunto}</h3>
+                            <p>${n.conteudo}</p>
+                        </div>`;
+                });
+            }
+        });
+
+        window.apagar = (id) => {
+            if(confirm("Excluir nota?")) remove(ref(db, `notas/${id}`));
+        };
+    </script>
+</body>
+</html>
