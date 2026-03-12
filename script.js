@@ -18,9 +18,18 @@ const db = getDatabase(app);
 let userLogado = null;
 let todasNotas = {};
 
+// CONFIGURAÇÃO DO EDITOR COM BARRA DINÂMICA
 const quill = new Quill('#editor-container', {
     theme: 'snow',
-    modules: { toolbar: [['bold', 'italic', 'underline'], [{ 'color': [] }], ['link'], [{ 'list': 'ordered'}, { 'list': 'bullet' }]] }
+    placeholder: 'Digite seu resumo aqui...',
+    modules: { 
+        toolbar: [
+            ['bold', 'italic', 'underline'], 
+            [{ 'color': [] }], 
+            ['link', 'blockquote'], 
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }]
+        ] 
+    }
 });
 
 // AUTH
@@ -71,8 +80,6 @@ function renderizar(notas, tipoF = null, valorF = null) {
         const n = notas[id];
         const arrayMats = n.materia ? n.materia.split(',').map(s => s.trim()) : [];
         const arrayTags = n.tags ? n.tags.split(',').map(s => s.trim()) : [];
-        
-        // COR DINÂMICA
         const corCard = n.cor || '#3498db';
 
         if(tipoF === 'materia' && !arrayMats.includes(valorF)) return;
@@ -81,11 +88,7 @@ function renderizar(notas, tipoF = null, valorF = null) {
         lista.innerHTML += `
             <div class="note-item" onclick="verNota('${id}')" style="border-left-color: ${corCard}">
                 <div style="overflow:hidden; white-space:nowrap; display: flex; gap: 4px;">
-                    ${arrayMats.length ? `
-                        <span class="badge" style="background-color: ${corCard}20; color: ${corCard}; border: 1px solid ${corCard}50;">
-                            ${arrayMats[0]}
-                        </span>` : ''}
-                    ${arrayTags.length ? `<span class="badge badge-tag">${arrayTags[0]}</span>` : ''}
+                    ${arrayMats.length ? `<span class="badge" style="background-color: ${corCard}20; color: ${corCard}; border: 1px solid ${corCard}50;">${arrayMats[0]}</span>` : ''}
                 </div>
                 <h3>${n.assunto}</h3>
                 <div style="margin-top:auto"><small style="color:gray">${n.data || ''}</small></div>
@@ -101,11 +104,7 @@ window.verNota = (id) => {
     
     const corCard = n.cor || '#3498db';
     const arrayMats = n.materia ? n.materia.split(',').map(s => s.trim()) : [];
-    const arrayTags = n.tags ? n.tags.split(',').map(s => s.trim()) : [];
-    
-    document.getElementById('leituraBadges').innerHTML = 
-        arrayMats.map(m => `<span class="badge" style="background-color: ${corCard}20; color: ${corCard}; border: 1px solid ${corCard}50; margin-right:5px">${m}</span>`).join('') +
-        arrayTags.map(t => `<span class="badge badge-tag">${t}</span>`).join('');
+    document.getElementById('leituraBadges').innerHTML = arrayMats.map(m => `<span class="badge" style="background-color: ${corCard}20; color: ${corCard}; border: 1px solid ${corCard}50; margin-right:5px">${m}</span>`).join('');
 
     document.getElementById('btnEditarLeitura').onclick = () => prepararEdicao(id);
     document.getElementById('btnApagarLeitura').onclick = () => apagar(id);
@@ -175,8 +174,4 @@ function atualizarFiltros(notas) {
 }
 
 window.filtrar = (tipo, valor, el) => {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    if(el) el.classList.add('active');
-    if(tipo === 'todas') renderizar(todasNotas);
-    else renderizar(todasNotas, tipo, valor);
-};
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove
