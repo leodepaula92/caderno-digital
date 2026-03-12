@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meu Caderno Digital Cloud</title>
     <style>
-        /* CSS INTEGRADO PARA EVITAR ERROS DE CARREGAMENTO */
         :root { --blue: #3498db; --bg: #e9ecef; --dark: #2c3e50; --white: #ffffff; }
         
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
@@ -50,10 +49,13 @@
 <body>
 
     <div id="auth-container">
-        <h2>📓 Login / Cadastro</h2>
+        <h2 id="auth-title">📓 Login / Cadastro</h2>
         <input type="email" id="email" placeholder="Seu e-mail">
         <input type="password" id="password" placeholder="Sua senha">
         <button class="btn-blue" id="btn-auth">Entrar</button>
+        
+        <p><a href="#" id="btn-recuperar" style="color: #e67e22; text-decoration: none; font-size: 13px; display: block; margin-top: 10px;">Esqueci minha senha</a></p>
+        
         <p><a href="#" id="btn-switch" style="color: #3498db; text-decoration: none; font-size: 14px;">Criar uma conta</a></p>
     </div>
 
