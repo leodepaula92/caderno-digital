@@ -39,5 +39,6 @@ As seguintes ferramentas e tecnologias foram utilizadas na construção do proje
 └── README.md           # Documentação do projeto
 
 
-👩‍💻 Autor
-Desenvolvido por Leo de Paula durante o curso de Desenvolvimento de Sistemas.
+## 👨🏾‍💻 Autor
+
+> Desenvolvido com carinho por **Leo de Paula** durante o curso de Desenvolvimento de Sistemas. Sinta-se à vontade para se conectar!
