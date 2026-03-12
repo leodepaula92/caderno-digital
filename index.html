@@ -13,42 +13,64 @@
 
         /* AUTH */
         #auth-container { background: var(--white); padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; margin-top: 50px; text-align: center; }
-        #app-container { display: none; width: 100%; max-width: 1100px; }
+        #app-container { display: none; width: 100%; max-width: 1200px; width: 95%; }
 
-        /* HEADER & LAYOUT */
+        /* HEADER */
         .header-app { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 30px; }
+        
+        /* LAYOUT EM GRID */
         .layout-grid { display: flex; gap: 30px; align-items: flex-start; }
         .sidebar { width: 250px; background: var(--white); padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); position: sticky; top: 20px; }
         .main-content { flex: 1; }
 
-        .btn-add { background: var(--blue); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 20px; font-size: 16px; width: 100%; }
+        #listaNotas { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 20px; 
+            justify-content: flex-start;
+        }
+
+        /* CARDS QUADRADOS */
+        .note-item { 
+            background: var(--white); 
+            padding: 15px; 
+            border-radius: 12px; 
+            border-left: 8px solid var(--blue); 
+            cursor: pointer; 
+            transition: 0.3s;
+            width: calc(25% - 15px); /* 4 por linha */
+            min-width: 220px;
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            box-sizing: border-box;
+        }
+        .note-item:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
+        .note-item h3 { margin: 10px 0; font-size: 18px; color: var(--dark); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 
         /* MODAIS */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
         .modal-content { background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 700px; position: relative; max-height: 90vh; overflow-y: auto; }
-        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #666; }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; }
 
-        /* CARDS */
-        .note-item { background: var(--white); padding: 20px; border-radius: 12px; margin-bottom: 15px; border-left: 6px solid var(--blue); cursor: pointer; transition: 0.2s; }
-        .note-item:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        /* FORM */
+        .form-group { display: flex; flex-direction: column; margin-bottom: 15px; }
+        input { padding: 12px; border: 1px solid #ccc; border-radius: 8px; width: 100%; box-sizing: border-box; }
+        .btn-blue { background: var(--blue); color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; }
         
-        /* FILTROS E BADGES */
         .filter-group { display: flex; flex-wrap: wrap; gap: 6px; }
-        .filter-btn { background: #f1f2f6; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-bottom: 5px; }
+        .filter-btn { background: #f1f2f6; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
         .filter-btn.active { background: var(--blue); color: white; }
         .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-right: 5px; text-transform: uppercase; }
         .badge-materia { background: #e1f5fe; color: #0288d1; }
         .badge-tag { background: #fff3e0; color: #ef6c00; }
 
-        /* FORM */
-        .form-group { display: flex; flex-direction: column; margin-bottom: 15px; text-align: left; }
-        label { font-weight: bold; margin-bottom: 5px; color: var(--dark); }
-        input { padding: 12px; border: 1px solid #ccc; border-radius: 8px; width: 100%; box-sizing: border-box; }
-        .btn-blue { background: var(--blue); color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px;}
-        
-        /* Ajuste do Editor Quill */
-        #editor-container { height: 250px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
-        .ql-toolbar { border-top-left-radius: 8px; border-top-right-radius: 8px; background: #f8f9fa; }
+        #editor-container { height: 200px; }
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 1000px) { .note-item { width: calc(50% - 10px); } }
+        @media (max-width: 600px) { .note-item { width: 100%; } .layout-grid { flex-direction: column; } .sidebar { width: 100%; position: static; } }
     </style>
 </head>
 <body>
@@ -57,8 +79,7 @@
         <h2 id="auth-title">📓 Login</h2>
         <input type="email" id="email" placeholder="E-mail">
         <input type="password" id="password" placeholder="Senha">
-        <button class="btn-blue" id="btn-auth">Entrar</button>
-        <p><a href="#" id="btn-recuperar" style="color:#e67e22; text-decoration:none; font-size:13px">Esqueci a senha</a></p>
+        <button class="btn-blue" id="btn-auth" style="margin-top:10px">Entrar</button>
         <p><a href="#" id="btn-switch" style="color:var(--blue); text-decoration:none; font-size:14px">Criar conta</a></p>
     </div>
 
@@ -73,11 +94,11 @@
 
         <div class="layout-grid">
             <aside class="sidebar">
-                <button class="btn-add" onclick="abrirModalCadastro()">+ Adicionar Nota</button>
-                <button class="filter-btn active" id="btnTudo" onclick="window.filtrar('todas', '', this)">Exibir Tudo</button>
+                <button style="background:var(--blue); color:white; border:none; padding:12px; border-radius:8px; width:100%; font-weight:bold; cursor:pointer; margin-bottom:20px" onclick="abrirModalCadastro()">+ Adicionar Nota</button>
+                <button class="filter-btn active" id="btnTudo" onclick="window.filtrar('todas', '', this)" style="width:100%; margin-bottom:10px">Exibir Tudo</button>
                 <h3>Matérias</h3>
                 <div id="filtroMaterias" class="filter-group"></div>
-                <h3>Tags</h3>
+                <h3 style="margin-top:20px">Tags</h3>
                 <div id="filtroTags" class="filter-group"></div>
             </aside>
 
@@ -106,6 +127,10 @@
                     <label>Tags:</label>
                     <input type="text" id="tags" placeholder="Ex: HTML, JS">
                 </div>
+                <div class="form-group" style="flex:0.5">
+                    <label>Cor:</label>
+                    <input type="color" id="corCard" value="#3498db" style="height:45px; padding:5px">
+                </div>
             </div>
             <div class="form-group">
                 <label>Conteúdo:</label>
@@ -122,7 +147,7 @@
             <h1 id="leituraTitulo" style="margin:10px 0"></h1>
             <small id="leituraData" style="color:gray"></small>
             <hr style="margin:20px 0; border:0; border-top:1px solid #eee">
-            <div id="leituraConteudo" class="ql-editor" style="padding:0; color:#333"></div>
+            <div id="leituraConteudo" class="ql-editor" style="padding:0"></div>
             <div style="margin-top:30px; display:flex; gap:10px">
                 <button id="btnEditarLeitura" class="filter-btn" style="background:#f1c40f; color:white; padding:10px 20px">Editar</button>
                 <button id="btnApagarLeitura" class="filter-btn" style="background:#ff7675; color:white; padding:10px 20px">Excluir</button>
