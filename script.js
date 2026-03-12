@@ -18,18 +18,9 @@ const db = getDatabase(app);
 let userLogado = null;
 let todasNotas = {};
 
-// INICIALIZAÇÃO DO EDITOR QUILL
 const quill = new Quill('#editor-container', {
     theme: 'snow',
-    placeholder: 'Escreva suas anotações aqui...',
-    modules: { 
-        toolbar: [
-            ['bold', 'italic', 'underline'], 
-            [{ 'color': [] }, { 'background': [] }], 
-            ['link', 'blockquote', 'code-block'], 
-            [{ 'list': 'ordered'}, { 'list': 'bullet' }]
-        ] 
-    }
+    modules: { toolbar: [['bold', 'italic', 'underline'], [{ 'color': [] }], ['link', 'blockquote', 'code-block'], [{ 'list': 'ordered'}, { 'list': 'bullet' }]] }
 });
 
 // AUTH
@@ -47,8 +38,8 @@ btnSwitch.onclick = (e) => {
 btnAuth.onclick = () => {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
-    if(isLogin) signInWithEmailAndPassword(auth, email, pass).catch(e => alert("Usuário ou senha inválidos"));
-    else createUserWithEmailAndPassword(auth, email, pass).catch(e => alert("Erro ao criar conta"));
+    if(isLogin) signInWithEmailAndPassword(auth, email, pass).catch(e => alert("Erro no login"));
+    else createUserWithEmailAndPassword(auth, email, pass).catch(e => alert("Erro no cadastro"));
 };
 
 document.getElementById('btn-sair').onclick = () => signOut(auth);
@@ -58,7 +49,7 @@ onAuthStateChanged(auth, (user) => {
         userLogado = user;
         document.getElementById('auth-container').style.display = 'none';
         document.getElementById('app-container').style.display = 'block';
-        document.getElementById('user-display').innerText = "Logado como: " + user.email;
+        document.getElementById('user-display').innerText = user.email;
         iniciarApp(user.uid);
     } else {
         document.getElementById('auth-container').style.display = 'block';
@@ -66,7 +57,6 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// LOGICA DO BANCO DE DADOS
 function iniciarApp(uid) {
     onValue(ref(db, `usuarios/${uid}/notas`), (snapshot) => {
         todasNotas = snapshot.val() || {};
@@ -82,15 +72,18 @@ function renderizar(notas, tipoF = null, valorF = null) {
         const n = notas[id];
         const arrayMats = n.materia ? n.materia.split(',').map(s => s.trim()) : [];
         const arrayTags = n.tags ? n.tags.split(',').map(s => s.trim()) : [];
+        const corCard = n.cor || '#3498db';
 
         if(tipoF === 'materia' && !arrayMats.includes(valorF)) return;
         if(tipoF === 'tag' && !arrayTags.includes(valorF)) return;
 
-        // AQUI A COR É APLICADA NA BORDA ESQUERDA
         lista.innerHTML += `
-            <div class="note-item" onclick="verNota('${id}')" style="border-left-color: ${n.cor || '#3498db'}">
+            <div class="note-item" onclick="verNota('${id}')" style="border-left-color: ${corCard}">
                 <div style="overflow:hidden; white-space:nowrap; display: flex; gap: 4px;">
-                    ${arrayMats.length ? `<span class="badge badge-materia">${arrayMats[0]}</span>` : ''}
+                    ${arrayMats.length ? `
+                        <span class="badge" style="background-color: ${corCard}22; color: ${corCard}; border: 1px solid ${corCard}44;">
+                            ${arrayMats[0]}
+                        </span>` : ''}
                     ${arrayTags.length ? `<span class="badge badge-tag">${arrayTags[0]}</span>` : ''}
                 </div>
                 <h3>${n.assunto}</h3>
@@ -104,15 +97,8 @@ function renderizar(notas, tipoF = null, valorF = null) {
 window.verNota = (id) => {
     const n = todasNotas[id];
     document.getElementById('leituraTitulo').innerText = n.assunto;
-    document.getElementById('leituraData').innerText = "Criado em: " + n.data;
+    document.getElementById('leituraData').innerText = "Data: " + n.data;
     document.getElementById('leituraConteudo').innerHTML = n.conteudo;
-    
-    const arrayMats = n.materia ? n.materia.split(',').map(s => s.trim()) : [];
-    const arrayTags = n.tags ? n.tags.split(',').map(s => s.trim()) : [];
-    document.getElementById('leituraBadges').innerHTML = 
-        arrayMats.map(m => `<span class="badge badge-materia">${m}</span>`).join('') +
-        arrayTags.map(t => `<span class="badge badge-tag">${t}</span>`).join('');
-
     document.getElementById('btnEditarLeitura').onclick = () => prepararEdicao(id);
     document.getElementById('btnApagarLeitura').onclick = () => apagar(id);
     document.getElementById('modalLeitura').style.display = 'flex';
@@ -125,7 +111,7 @@ window.prepararEdicao = (id) => {
     document.getElementById('assunto').value = n.assunto;
     document.getElementById('materia').value = n.materia || "";
     document.getElementById('tags').value = n.tags || "";
-    document.getElementById('corCard').value = n.cor || "#3498db"; // Carrega a cor salva
+    document.getElementById('corCard').value = n.cor || "#3498db";
     quill.root.innerHTML = n.conteudo;
     document.getElementById('modalTitulo').innerText = "Editar Nota";
     document.getElementById('modalForm').style.display = 'flex';
@@ -137,7 +123,7 @@ document.getElementById('btnSalvar').onclick = () => {
         assunto: document.getElementById('assunto').value,
         materia: document.getElementById('materia').value,
         tags: document.getElementById('tags').value,
-        cor: document.getElementById('corCard').value, // SALVA A COR NO FIREBASE
+        cor: document.getElementById('corCard').value,
         conteudo: quill.root.innerHTML,
         data: new Date().toLocaleDateString('pt-BR')
     };
@@ -146,10 +132,9 @@ document.getElementById('btnSalvar').onclick = () => {
     fecharModalCadastro();
 };
 
-window.apagar = (id) => { if(confirm("Deseja apagar esta nota?")) { remove(ref(db, `usuarios/${userLogado.uid}/notas/${id}`)); fecharModalLeitura(); } };
+window.apagar = (id) => { if(confirm("Apagar nota?")) { remove(ref(db, `usuarios/${userLogado.uid}/notas/${id}`)); fecharModalLeitura(); } };
 
-// CONTROLE DE MODAIS
-window.abrirModalCadastro = () => { document.getElementById('modalForm').style.display = 'flex'; document.getElementById('modalTitulo').innerText = "Nova Nota"; limparForm(); };
+window.abrirModalCadastro = () => { document.getElementById('modalForm').style.display = 'flex'; limparForm(); };
 window.fecharModalCadastro = () => { document.getElementById('modalForm').style.display = 'none'; };
 window.fecharModalLeitura = () => { document.getElementById('modalLeitura').style.display = 'none'; };
 
@@ -162,13 +147,12 @@ function limparForm() {
     quill.root.innerHTML = "";
 }
 
-// BUSCA E FILTROS
 document.getElementById('inputBusca').addEventListener('input', (e) => {
     const termo = e.target.value.toLowerCase();
     const filtradas = {};
     Object.keys(todasNotas).forEach(id => {
         const n = todasNotas[id];
-        if((n.assunto + n.conteudo + n.materia + n.tags).toLowerCase().includes(termo)) filtradas[id] = n;
+        if((n.assunto + n.conteudo).toLowerCase().includes(termo)) filtradas[id] = n;
     });
     renderizar(filtradas);
 });
