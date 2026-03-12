@@ -9,25 +9,25 @@
 <body>
 
     <div id="auth-container">
-        <h2>📓 Meu Caderno Cloud</h2>
-        <input type="email" id="email" placeholder="E-mail">
-        <input type="password" id="password" placeholder="Senha">
+        <h2>📓 Login / Cadastro</h2>
+        <input type="email" id="email" placeholder="Seu e-mail">
+        <input type="password" id="password" placeholder="Sua senha">
         <button class="btn-blue" id="btn-auth">Entrar</button>
-        <p style="margin-top:15px; font-size:14px; color:#666">Novo por aqui? <a href="#" id="btn-switch">Criar conta</a></p>
+        <p><a href="#" id="btn-switch" style="color: #3498db; text-decoration: none; font-size: 14px;">Criar uma conta</a></p>
     </div>
 
     <div id="app-container">
-        <div class="header-app">
+        <header class="header-app">
             <div>
                 <h1 style="margin:0">📓 Meu Caderno Digital</h1>
-                <small id="user-display" style="color:#666"></small>
+                <small id="user-display"></small>
             </div>
             <button class="btn-sair" id="btn-sair">Sair</button>
-        </div>
+        </header>
 
         <div class="layout-grid">
             <aside class="sidebar">
-                <button class="filter-btn active" id="btnTudo">Exibir Tudo</button>
+                <button class="filter-btn active" id="btnTudo" onclick="window.filtrar('todas', '', this)">Exibir Tudo</button>
                 <h3>Matérias</h3>
                 <div id="filtroMaterias" class="filter-group"></div>
                 <h3>Tags</h3>
@@ -37,14 +37,26 @@
             <main class="main-content">
                 <div class="card">
                     <input type="hidden" id="edit-id">
-                    <input type="text" id="assunto" placeholder="Assunto da Aula">
-                    <div class="form-row">
-                        <input type="text" id="materia" placeholder="Matéria">
-                        <input type="text" id="tags" placeholder="Tags (ex: TI, GITHUB)">
+                    <div class="form-group">
+                        <label><b>Assunto da Aula:</b></label>
+                        <input type="text" id="assunto" placeholder="Ex: Aula 01">
                     </div>
-                    <textarea id="conteudo" rows="5" placeholder="Resumo da aula..."></textarea>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><b>Matéria:</b></label>
+                            <input type="text" id="materia" placeholder="Ex: TI">
+                        </div>
+                        <div class="form-group">
+                            <label><b>Tags:</b></label>
+                            <input type="text" id="tags" placeholder="Ex: GITHUB, SQL">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label><b>Conteúdo:</b></label>
+                        <textarea id="conteudo" rows="5" placeholder="Resumo da aula..."></textarea>
+                    </div>
                     <button class="btn-blue" id="btnSalvar">Salvar no Caderno</button>
-                    <button id="btnCancelar" style="display:none; width:100%; margin-top:10px; background:none; border:none; color:#666; cursor:pointer;">Cancelar Edição</button>
+                    <button id="btnCancelar" style="display:none; width:100%; border:none; background:none; color:gray; cursor:pointer; margin-top:10px; text-decoration:underline">Cancelar Edição</button>
                 </div>
                 <div id="listaNotas"></div>
             </main>
