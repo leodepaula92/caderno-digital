@@ -41,3 +41,13 @@ Você pode acessar a aplicação pronta para uso clicando no link abaixo:
 ├── index.html          # Estrutura e Estilização (CSS Interno)
 ├── script.js           # Lógica do Sistema e Firebase
 ├── README.md           # Documentação do projeto
+
+---
+
+## 👨🏻‍💻 Autor
+
+> **Desenvolvido por Leo de Paula durante o curso de Desenvolvimento de Sistemas.**
+> 
+> "Transformando linhas de código em soluções práticas para o aprendizado." 🚀
+
+---
