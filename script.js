@@ -18,6 +18,21 @@ const db = getDatabase(app);
 let userLogado = null;
 let todasNotas = {};
 
+// --- INICIALIZAÇÃO DO EDITOR QUILL ---
+const quill = new Quill('#editor-container', {
+    theme: 'snow',
+    placeholder: 'Digite seu resumo aqui...',
+    modules: {
+        toolbar: [
+            ['bold', 'italic', 'underline'],
+            [{ 'size': ['small', false, 'large', 'huge'] }],
+            [{ 'color': [] }, { 'background': [] }],
+            ['link', 'blockquote', 'code-block'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }]
+        ]
+    }
+});
+
 // --- AUTH ---
 const btnAuth = document.getElementById('btn-auth');
 const btnSwitch = document.getElementById('btn-switch');
@@ -103,16 +118,14 @@ window.verNota = (id) => {
     const n = todasNotas[id];
     document.getElementById('leituraTitulo').innerText = n.assunto;
     document.getElementById('leituraData').innerText = "Criado em: " + n.data;
-    document.getElementById('leituraConteudo').innerText = n.conteudo;
+    document.getElementById('leituraConteudo').innerHTML = n.conteudo; // Renderiza o HTML
     
-    // Badges no Modal
     const arrayMats = n.materia ? n.materia.split(',').map(s => s.trim()) : [];
     const arrayTags = n.tags ? n.tags.split(',').map(s => s.trim()) : [];
     document.getElementById('leituraBadges').innerHTML = 
         arrayMats.map(m => `<span class="badge badge-materia">${m}</span>`).join('') +
         arrayTags.map(t => `<span class="badge badge-tag">${t}</span>`).join('');
 
-    // Botões de Ação
     document.getElementById('btnEditarLeitura').onclick = () => prepararEdicao(id);
     document.getElementById('btnApagarLeitura').onclick = () => apagar(id);
 
@@ -126,13 +139,14 @@ window.prepararEdicao = (id) => {
     document.getElementById('assunto').value = n.assunto;
     document.getElementById('materia').value = n.materia || "";
     document.getElementById('tags').value = n.tags || "";
-    document.getElementById('conteudo').value = n.conteudo;
+    quill.root.innerHTML = n.conteudo; // Carrega HTML no editor
+    
     document.getElementById('modalTitulo').innerText = "Editar Nota";
     document.getElementById('modalForm').style.display = 'flex';
 };
 
 window.apagar = (id) => {
-    if(confirm("Deseja excluir esta nota permanentemente?")) {
+    if(confirm("Deseja excluir esta nota?")) {
         remove(ref(db, `usuarios/${userLogado.uid}/notas/${id}`));
         fecharModalLeitura();
     }
@@ -144,7 +158,7 @@ document.getElementById('btnSalvar').onclick = () => {
         assunto: document.getElementById('assunto').value,
         materia: document.getElementById('materia').value,
         tags: document.getElementById('tags').value,
-        conteudo: document.getElementById('conteudo').value,
+        conteudo: quill.root.innerHTML, // Salva o HTML do editor
         data: new Date().toLocaleDateString('pt-BR')
     };
     if(id) update(ref(db, `usuarios/${userLogado.uid}/notas/${id}`), dados);
@@ -185,5 +199,5 @@ function limparForm() {
     document.getElementById('assunto').value = "";
     document.getElementById('materia').value = "";
     document.getElementById('tags').value = "";
-    document.getElementById('conteudo').value = "";
+    quill.root.innerHTML = "";
 }
