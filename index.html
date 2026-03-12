@@ -4,7 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meu Caderno Digital Cloud</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* CSS INTEGRADO PARA EVITAR ERROS DE CARREGAMENTO */
+        :root { --blue: #3498db; --bg: #e9ecef; --dark: #2c3e50; --white: #ffffff; }
+        
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+
+        #auth-container { background: var(--white); padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; margin-top: 50px; text-align: center; }
+        
+        #app-container { display: none; width: 100%; max-width: 1100px; }
+
+        .header-app { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 30px; }
+
+        .layout-grid { display: flex; gap: 30px; align-items: flex-start; }
+
+        .sidebar { width: 250px; background: var(--white); padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); position: sticky; top: 20px; }
+        .sidebar h3 { font-size: 14px; margin: 15px 0 10px 0; border-bottom: 2px solid var(--blue); padding-bottom: 5px; color: var(--dark); text-transform: uppercase; }
+
+        .filter-group { display: flex; flex-wrap: wrap; gap: 6px; }
+        .filter-btn { background: #f1f2f6; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: 0.2s; }
+        .filter-btn.active { background: var(--blue) !important; color: white !important; font-weight: bold; }
+
+        .main-content { flex: 1; width: 100%; }
+        .card { background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 30px; box-sizing: border-box; }
+
+        .form-row { display: flex; gap: 15px; margin-bottom: 15px; }
+        .form-group { flex: 1; display: flex; flex-direction: column; text-align: left; }
+        
+        label { font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #333; }
+
+        input, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; box-sizing: border-box; margin-bottom: 10px; }
+        
+        .btn-blue { background: var(--blue); color: white; border: none; padding: 15px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; }
+
+        .note-item { background: var(--white); padding: 25px; border-radius: 12px; margin-bottom: 20px; border-left: 6px solid var(--blue); position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: left;}
+
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-right: 8px; text-transform: uppercase; margin-bottom: 5px; }
+        .badge-materia { background: #e1f5fe; color: #0288d1; }
+        .badge-tag { background: #fff3e0; color: #ef6c00; }
+
+        .actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; }
+        .btn-sair { background: #ff7675; padding: 8px 20px; border-radius: 8px; color: white; border: none; cursor: pointer; font-weight: bold; }
+    </style>
 </head>
 <body>
 
@@ -20,7 +61,7 @@
         <header class="header-app">
             <div>
                 <h1 style="margin:0">📓 Meu Caderno Digital</h1>
-                <small id="user-display"></small>
+                <small id="user-display" style="color: #666;"></small>
             </div>
             <button class="btn-sair" id="btn-sair">Sair</button>
         </header>
@@ -38,21 +79,21 @@
                 <div class="card">
                     <input type="hidden" id="edit-id">
                     <div class="form-group">
-                        <label><b>Assunto da Aula:</b></label>
+                        <label>Assunto da Aula:</label>
                         <input type="text" id="assunto" placeholder="Ex: Aula 01">
                     </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label><b>Matéria:</b></label>
+                            <label>Matéria:</label>
                             <input type="text" id="materia" placeholder="Ex: TI">
                         </div>
                         <div class="form-group">
-                            <label><b>Tags:</b></label>
+                            <label>Tags:</label>
                             <input type="text" id="tags" placeholder="Ex: GITHUB, SQL">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label><b>Conteúdo:</b></label>
+                        <label>Conteúdo:</label>
                         <textarea id="conteudo" rows="5" placeholder="Resumo da aula..."></textarea>
                     </div>
                     <button class="btn-blue" id="btnSalvar">Salvar no Caderno</button>
