@@ -8,70 +8,71 @@
 body { 
     font-family: 'Segoe UI', sans-serif; 
     background: var(--bg); 
-    margin: 0; 
-    padding: 20px; 
-    display: flex; 
-    flex-direction: column; 
-    align-items: center; 
+    margin: 0; padding: 20px; 
+    display: flex; flex-direction: column; align-items: center; 
 }
 
-/* TELA DE LOGIN */
+/* AUTH / LOGIN */
 #auth-container { 
-    background: var(--white); 
-    padding: 40px; 
-    border-radius: 15px; 
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-    width: 100%; 
-    max-width: 400px; 
-    margin-top: 100px; 
-    text-align: center; 
+    background: var(--white); padding: 40px; border-radius: 15px; 
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; 
+    margin-top: 100px; text-align: center; 
 }
 
-/* LAYOUT PRINCIPAL */
+/* APP CONTAINER */
 #app-container { display: none; width: 100%; max-width: 1100px; }
 
 .header-app { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    width: 100%; 
-    margin-bottom: 30px; 
+    display: flex; justify-content: space-between; align-items: center; 
+    width: 100%; margin-bottom: 30px; 
 }
 
 .layout-grid { display: flex; gap: 30px; align-items: flex-start; }
 
-/* SIDEBAR E FILTROS */
+/* SIDEBAR */
 .sidebar { 
-    width: 250px; 
-    background: var(--white); 
-    padding: 20px; 
-    border-radius: 15px; 
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
-    position: sticky; 
-    top: 20px; 
+    width: 250px; background: var(--white); padding: 20px; 
+    border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+    position: sticky; top: 20px; 
 }
 
 .sidebar h3 { font-size: 14px; margin: 15px 0 10px 0; border-bottom: 2px solid var(--blue); padding-bottom: 5px; color: var(--dark); text-transform: uppercase; }
 
+/* FILTROS */
 .filter-group { display: flex; flex-wrap: wrap; gap: 6px; }
-
-/* ESTILO DO BOTÃO ATIVO (COLORIDO) */
 .filter-btn { 
-    background: #f1f2f6; 
-    border: none; 
-    padding: 6px 12px; 
-    border-radius: 6px; 
-    cursor: pointer; 
-    font-size: 12px; 
-    transition: all 0.2s;
+    background: #f1f2f6; border: none; padding: 6px 12px; border-radius: 6px; 
+    cursor: pointer; font-size: 12px; transition: 0.2s; 
+}
+.filter-btn.active { background: var(--blue) !important; color: white !important; font-weight: bold; }
+
+/* ÁREA DE CONTEÚDO */
+.main-content { flex: 1; width: 100%; }
+.card { background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 30px; }
+
+.form-row { display: flex; gap: 15px; margin-bottom: 15px; }
+.form-group { flex: 1; display: flex; flex-direction: column; }
+
+input, textarea { 
+    width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; 
+    font-size: 15px; box-sizing: border-box; margin-top: 5px;
 }
 
-.filter-btn.active { 
-    background: var(--blue) !important; 
-    color: white !important; 
-    font-weight: bold;
+.btn-blue { 
+    background: var(--blue); color: white; border: none; padding: 15px; 
+    border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; 
 }
 
-/* FORMULÁRIO E NOTAS */
-.main-content { flex: 1; }
-.card { background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0
+/* NOTAS RENDERIZADAS */
+.note-item { 
+    background: var(--white); padding: 25px; border-radius: 12px; 
+    margin-bottom: 20px; border-left: 6px solid var(--blue); position: relative;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-right: 8px; text-transform: uppercase; margin-bottom: 5px;}
+.badge-materia { background: #e1f5fe; color: #0288d1; }
+.badge-tag { background: #fff3e0; color: #ef6c00; }
+
+.actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; }
+.btn-sair { background: #ff7675; padding: 8px 20px; border-radius: 8px; color: white; border: none; cursor: pointer; font-weight: bold; }
