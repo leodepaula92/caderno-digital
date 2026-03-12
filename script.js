@@ -26,7 +26,9 @@ let isLogin = true;
 btnSwitch.onclick = (e) => {
     e.preventDefault();
     isLogin = !isLogin;
-    document.getElementById('btn-auth').innerText = isLogin ? "Entrar" : "Cadastrar";
+    document.querySelector('#auth-container h2').innerText = isLogin ? "Login" : "Cadastro";
+    btnAuth.innerText = isLogin ? "Entrar" : "Cadastrar";
+    btnSwitch.innerText = isLogin ? "Criar uma conta" : "Já tenho conta";
 };
 
 btnAuth.onclick = () => {
@@ -51,7 +53,7 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// --- CADERNO E FILTROS ---
+// --- APP CORE ---
 function iniciarApp(uid) {
     onValue(ref(db, `usuarios/${uid}/notas`), (snapshot) => {
         todasNotas = snapshot.val() || {};
@@ -61,7 +63,7 @@ function iniciarApp(uid) {
 }
 
 window.filtrar = (tipo, valor, el) => {
-    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     if(el) el.classList.add('active');
     else document.getElementById('btnTudo').classList.add('active');
 
@@ -83,31 +85,31 @@ function renderizar(notas, tipoF = null, valorF = null) {
         lista.innerHTML += `
             <div class="note-item">
                 <div class="actions">
-                    <button class="btn-action" style="background:#f1c40f" onclick="prepararEdicao('${id}')">✏️</button>
-                    <button class="btn-action" style="background:#ff7675" onclick="apagar('${id}')">🗑️</button>
+                    <button style="background:#f1c40f; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;" onclick="prepararEdicao('${id}')">✏️</button>
+                    <button style="background:#ff7675; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;" onclick="apagar('${id}')">🗑️</button>
                 </div>
-                <div>
+                <div style="margin-bottom:8px">
                     ${arrayMats.map(m => `<span class="badge badge-materia">${m}</span>`).join('')}
                     ${arrayTags.map(t => `<span class="badge badge-tag">${t}</span>`).join('')}
                 </div>
-                <small>${n.data || ''}</small>
-                <h3>${n.assunto}</h3>
-                <p>${n.conteudo}</p>
+                <small style="color:gray">${n.data || ''}</small>
+                <h3 style="margin:10px 0">${n.assunto}</h3>
+                <p style="white-space: pre-wrap; color:#444">${n.conteudo}</p>
             </div>`;
     });
 }
 
 function atualizarFiltros(notas) {
-    const mats = new Set(); const tags = new Set();
+    const mSet = new Set(); const tSet = new Set();
     Object.values(notas).forEach(n => {
-        if(n.materia) n.materia.split(',').forEach(m => mats.add(m.trim()));
-        if(n.tags) n.tags.split(',').forEach(t => tags.add(t.trim()));
+        if(n.materia) n.materia.split(',').forEach(m => mSet.add(m.trim()));
+        if(n.tags) n.tags.split(',').forEach(t => tSet.add(t.trim()));
     });
-    document.getElementById('filtroMaterias').innerHTML = Array.from(mats).map(m => `<button class="filter-btn" onclick="filtrar('materia', '${m}', this)">${m}</button>`).join('');
-    document.getElementById('filtroTags').innerHTML = Array.from(tags).map(t => `<button class="filter-btn" onclick="filtrar('tag', '${t}', this)">${t}</button>`).join('');
+    document.getElementById('filtroMaterias').innerHTML = Array.from(mSet).map(m => `<button class="filter-btn" onclick="filtrar('materia', '${m}', this)">${m}</button>`).join('');
+    document.getElementById('filtroTags').innerHTML = Array.from(tSet).map(t => `<button class="filter-btn" onclick="filtrar('tag', '${t}', this)">${t}</button>`).join('');
 }
 
-// Funções globais para os botões funcionarem
+// --- FUNÇÕES GLOBAIS ---
 window.prepararEdicao = (id) => {
     const n = todasNotas[id];
     document.getElementById('edit-id').value = id;
@@ -119,7 +121,7 @@ window.prepararEdicao = (id) => {
     document.getElementById('btnCancelar').style.display = "block";
 };
 
-window.apagar = (id) => { if(confirm("Apagar?")) remove(ref(db, `usuarios/${userLogado.uid}/notas/${id}`)); };
+window.apagar = (id) => { if(confirm("Apagar nota?")) remove(ref(db, `usuarios/${userLogado.uid}/notas/${id}`)); };
 
 document.getElementById('btnSalvar').onclick = () => {
     const id = document.getElementById('edit-id').value;
@@ -146,5 +148,3 @@ function limparCampos() {
     document.getElementById('assunto').value = ""; document.getElementById('materia').value = "";
     document.getElementById('tags').value = ""; document.getElementById('conteudo').value = "";
 }
-
-document.getElementById('btnTudo').onclick = () => filtrar('todas');
