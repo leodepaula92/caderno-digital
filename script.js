@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -18,22 +18,13 @@ const db = getDatabase(app);
 let userLogado = null;
 let todasNotas = {};
 
-// --- INICIALIZAÇÃO DO EDITOR QUILL ---
+// EDITOR QUILL
 const quill = new Quill('#editor-container', {
     theme: 'snow',
-    placeholder: 'Digite seu resumo aqui...',
-    modules: {
-        toolbar: [
-            ['bold', 'italic', 'underline'],
-            [{ 'size': ['small', false, 'large', 'huge'] }],
-            [{ 'color': [] }, { 'background': [] }],
-            ['link', 'blockquote', 'code-block'],
-            [{ 'list': 'ordered'}, { 'list': 'bullet' }]
-        ]
-    }
+    modules: { toolbar: [['bold', 'italic', 'underline'], [{ 'color': [] }, { 'background': [] }], ['link'], [{ 'list': 'ordered'}, { 'list': 'bullet' }]] }
 });
 
-// --- AUTH ---
+// AUTH
 const btnAuth = document.getElementById('btn-auth');
 const btnSwitch = document.getElementById('btn-switch');
 let isLogin = true;
@@ -48,8 +39,8 @@ btnSwitch.onclick = (e) => {
 btnAuth.onclick = () => {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
-    if(isLogin) signInWithEmailAndPassword(auth, email, pass).catch(e => alert(e.message));
-    else createUserWithEmailAndPassword(auth, email, pass).catch(e => alert(e.message));
+    if(isLogin) signInWithEmailAndPassword(auth, email, pass).catch(e => alert("Erro ao entrar"));
+    else createUserWithEmailAndPassword(auth, email, pass).catch(e => alert("Erro ao cadastrar"));
 };
 
 document.getElementById('btn-sair').onclick = () => signOut(auth);
@@ -59,7 +50,7 @@ onAuthStateChanged(auth, (user) => {
         userLogado = user;
         document.getElementById('auth-container').style.display = 'none';
         document.getElementById('app-container').style.display = 'block';
-        document.getElementById('user-display').innerText = "Logado como: " + user.email;
+        document.getElementById('user-display').innerText = user.email;
         iniciarApp(user.uid);
     } else {
         document.getElementById('auth-container').style.display = 'block';
@@ -67,22 +58,7 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// --- FUNÇÕES DE MODAL ---
-window.abrirModalCadastro = () => {
-    document.getElementById('modalForm').style.display = 'flex';
-    document.getElementById('modalTitulo').innerText = "Nova Nota";
-    limparForm();
-};
-
-window.fecharModalCadastro = () => {
-    document.getElementById('modalForm').style.display = 'none';
-};
-
-window.fecharModalLeitura = () => {
-    document.getElementById('modalLeitura').style.display = 'none';
-};
-
-// --- LOGICA APP ---
+// LOGICA
 function iniciarApp(uid) {
     onValue(ref(db, `usuarios/${uid}/notas`), (snapshot) => {
         todasNotas = snapshot.val() || {};
@@ -103,13 +79,12 @@ function renderizar(notas, tipoF = null, valorF = null) {
         if(tipoF === 'tag' && !arrayTags.includes(valorF)) return;
 
         lista.innerHTML += `
-            <div class="note-item" onclick="verNota('${id}')">
-                <div>
-                    ${arrayMats.map(m => `<span class="badge badge-materia">${m}</span>`).join('')}
-                    ${arrayTags.map(t => `<span class="badge badge-tag">${t}</span>`).join('')}
+            <div class="note-item" onclick="verNota('${id}')" style="border-left-color: ${n.cor || '#3498db'}">
+                <div style="overflow:hidden; white-space:nowrap">
+                    ${arrayMats.length ? `<span class="badge badge-materia">${arrayMats[0]}</span>` : ''}
                 </div>
                 <h3>${n.assunto}</h3>
-                <small style="color:gray">${n.data || ''}</small>
+                <div style="margin-top:auto"><small style="color:gray">${n.data || ''}</small></div>
             </div>`;
     });
 }
@@ -117,18 +92,10 @@ function renderizar(notas, tipoF = null, valorF = null) {
 window.verNota = (id) => {
     const n = todasNotas[id];
     document.getElementById('leituraTitulo').innerText = n.assunto;
-    document.getElementById('leituraData').innerText = "Criado em: " + n.data;
-    document.getElementById('leituraConteudo').innerHTML = n.conteudo; // Renderiza o HTML
-    
-    const arrayMats = n.materia ? n.materia.split(',').map(s => s.trim()) : [];
-    const arrayTags = n.tags ? n.tags.split(',').map(s => s.trim()) : [];
-    document.getElementById('leituraBadges').innerHTML = 
-        arrayMats.map(m => `<span class="badge badge-materia">${m}</span>`).join('') +
-        arrayTags.map(t => `<span class="badge badge-tag">${t}</span>`).join('');
-
+    document.getElementById('leituraData').innerText = n.data;
+    document.getElementById('leituraConteudo').innerHTML = n.conteudo;
     document.getElementById('btnEditarLeitura').onclick = () => prepararEdicao(id);
     document.getElementById('btnApagarLeitura').onclick = () => apagar(id);
-
     document.getElementById('modalLeitura').style.display = 'flex';
 };
 
@@ -139,17 +106,10 @@ window.prepararEdicao = (id) => {
     document.getElementById('assunto').value = n.assunto;
     document.getElementById('materia').value = n.materia || "";
     document.getElementById('tags').value = n.tags || "";
-    quill.root.innerHTML = n.conteudo; // Carrega HTML no editor
-    
+    document.getElementById('corCard').value = n.cor || "#3498db";
+    quill.root.innerHTML = n.conteudo;
     document.getElementById('modalTitulo').innerText = "Editar Nota";
     document.getElementById('modalForm').style.display = 'flex';
-};
-
-window.apagar = (id) => {
-    if(confirm("Deseja excluir esta nota?")) {
-        remove(ref(db, `usuarios/${userLogado.uid}/notas/${id}`));
-        fecharModalLeitura();
-    }
 };
 
 document.getElementById('btnSalvar').onclick = () => {
@@ -158,7 +118,8 @@ document.getElementById('btnSalvar').onclick = () => {
         assunto: document.getElementById('assunto').value,
         materia: document.getElementById('materia').value,
         tags: document.getElementById('tags').value,
-        conteudo: quill.root.innerHTML, // Salva o HTML do editor
+        cor: document.getElementById('corCard').value,
+        conteudo: quill.root.innerHTML,
         data: new Date().toLocaleDateString('pt-BR')
     };
     if(id) update(ref(db, `usuarios/${userLogado.uid}/notas/${id}`), dados);
@@ -166,7 +127,23 @@ document.getElementById('btnSalvar').onclick = () => {
     fecharModalCadastro();
 };
 
-// BUSCA
+window.apagar = (id) => { if(confirm("Apagar nota?")) { remove(ref(db, `usuarios/${userLogado.uid}/notas/${id}`)); fecharModalLeitura(); } };
+
+// MODAIS
+window.abrirModalCadastro = () => { document.getElementById('modalForm').style.display = 'flex'; document.getElementById('modalTitulo').innerText = "Nova Nota"; limparForm(); };
+window.fecharModalCadastro = () => { document.getElementById('modalForm').style.display = 'none'; };
+window.fecharModalLeitura = () => { document.getElementById('modalLeitura').style.display = 'none'; };
+
+function limparForm() {
+    document.getElementById('edit-id').value = "";
+    document.getElementById('assunto').value = "";
+    document.getElementById('materia').value = "";
+    document.getElementById('tags').value = "";
+    document.getElementById('corCard').value = "#3498db";
+    quill.root.innerHTML = "";
+}
+
+// BUSCA E FILTROS
 document.getElementById('inputBusca').addEventListener('input', (e) => {
     const termo = e.target.value.toLowerCase();
     const filtradas = {};
@@ -193,11 +170,3 @@ window.filtrar = (tipo, valor, el) => {
     if(tipo === 'todas') renderizar(todasNotas);
     else renderizar(todasNotas, tipo, valor);
 };
-
-function limparForm() {
-    document.getElementById('edit-id').value = "";
-    document.getElementById('assunto').value = "";
-    document.getElementById('materia').value = "";
-    document.getElementById('tags').value = "";
-    quill.root.innerHTML = "";
-}
