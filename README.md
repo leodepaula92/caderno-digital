@@ -38,6 +38,5 @@ As seguintes ferramentas e tecnologias foram utilizadas na construção do proje
 ├── script.js           # Lógica do Firebase e manipulação do DOM
 └── README.md           # Documentação do projeto
 
----
 
-## Desenvolvido por Leonardo de Paula (2026).
+ Desenvolvido por Leonardo de Paula (2026).
