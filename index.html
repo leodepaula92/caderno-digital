@@ -6,39 +6,37 @@
     <title>Meu Caderno Digital Pro</title>
     <style>
         :root { --blue: #3498db; --bg: #e9ecef; --dark: #2c3e50; }
-        
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
 
         /* TELA DE LOGIN */
         #auth-container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; margin-top: 100px; text-align: center; }
         
-        /* LAYOUT DO CADERNO (RECUPERADO) */
+        /* LAYOUT PRINCIPAL */
         #app-container { display: none; width: 100%; max-width: 1100px; }
-        
         .header-app { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 30px; }
-        
         .layout-grid { display: flex; gap: 30px; align-items: flex-start; }
 
-        /* BARRA LATERAL */
+        /* SIDEBAR FILTROS */
         .sidebar { width: 250px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); position: sticky; top: 20px; }
-        .sidebar h3 { font-size: 16px; margin: 15px 0 10px 0; border-bottom: 2px solid var(--blue); padding-bottom: 5px; color: var(--dark); }
+        .sidebar h3 { font-size: 14px; margin: 15px 0 10px 0; border-bottom: 2px solid var(--blue); padding-bottom: 5px; color: var(--dark); text-transform: uppercase; }
         .filter-group { display: flex; flex-wrap: wrap; gap: 6px; }
 
-        /* AREA CENTRAL */
+        /* CARD DE CADASTRO */
         .main-content { flex: 1; }
         .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
 
-        /* CAMPOS E BOTÕES */
-        input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 16px; }
+        input, textarea { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
         .btn-blue { background: var(--blue); color: white; border: none; padding: 15px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.3s; }
-        .btn-blue:hover { background: #2980b9; }
         
-        .filter-btn { background: #f1f2f6; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+        .filter-btn { background: #f1f2f6; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+        .filter-btn:hover { background: #ddd; }
         .filter-btn.active { background: var(--blue); color: white; }
 
-        /* NOTAS */
+        /* ESTILO DAS NOTAS */
         .note-item { background: white; padding: 25px; border-radius: 12px; margin-bottom: 20px; border-left: 6px solid var(--blue); position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-        .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; margin-right: 8px; margin-bottom: 10px; text-transform: uppercase; }
+        .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-right: 8px; margin-bottom: 10px; text-transform: uppercase; }
+        .badge-materia { background: #e1f5fe; color: #0288d1; }
         .badge-tag { background: #fff3e0; color: #ef6c00; }
         
         .actions { position: absolute; top: 15px; right: 15px; }
@@ -67,22 +65,35 @@
 
         <div class="layout-grid">
             <div class="sidebar">
-                <button class="filter-btn active" onclick="filtrar('todas')" style="width:100%; margin-bottom:15px; font-weight:bold">Exibir Tudo</button>
-                <h3>Minhas Tags</h3>
+                <button class="filter-btn active" id="btnTudo" onclick="filtrar('todas')" style="width:100%; margin-bottom:15px; font-weight:bold">Exibir Tudo</button>
+                
+                <h3>Matérias</h3>
+                <div id="filtroMaterias" class="filter-group"></div>
+
+                <h3>Tags</h3>
                 <div id="filtroTags" class="filter-group"></div>
             </div>
 
             <div class="main-content">
                 <div class="card">
                     <input type="hidden" id="edit-id">
-                    <label><b>Assunto da Aula:</b></label>
-                    <input type="text" id="assunto" placeholder="Ex: Aula 01">
                     
-                    <label><b>Tags:</b></label>
-                    <input type="text" id="tags" placeholder="Ex: TI, GITHUB (separadas por vírgula)">
+                    <label><b>Assunto da Aula:</b></label>
+                    <input type="text" id="assunto" placeholder="Ex: Aula de Flexbox">
+                    
+                    <div class="form-row">
+                        <div style="display:flex; flex-direction:column">
+                            <label><b>Matéria:</b></label>
+                            <input type="text" id="materia" placeholder="Ex: Programação">
+                        </div>
+                        <div style="display:flex; flex-direction:column">
+                            <label><b>Tags:</b></label>
+                            <input type="text" id="tags" placeholder="Ex: TI, GITHUB">
+                        </div>
+                    </div>
                     
                     <label><b>Conteúdo:</b></label>
-                    <textarea id="conteudo" rows="5" placeholder="Escreva seu resumo..."></textarea>
+                    <textarea id="conteudo" rows="5" placeholder="Resumo da aula..."></textarea>
                     
                     <button class="btn-blue" id="btnSalvar">Salvar no Caderno</button>
                     <button id="btnCancelar" onclick="cancelarEdicao()" style="display:none; width:100%; margin-top:10px; background:none; border:none; color:#666; cursor:pointer; text-decoration:underline">Cancelar Edição</button>
@@ -163,6 +174,7 @@
             const id = document.getElementById('edit-id').value;
             const dados = {
                 assunto: document.getElementById('assunto').value,
+                materia: document.getElementById('materia').value,
                 tags: document.getElementById('tags').value,
                 conteudo: document.getElementById('conteudo').value,
                 data: new Date().toLocaleDateString('pt-BR')
@@ -170,20 +182,22 @@
 
             if (id) update(ref(db, `usuarios/${userLogado.uid}/notas/${id}`), dados).then(() => cancelarEdicao());
             else push(ref(db, `usuarios/${userLogado.uid}/notas`), dados);
-            
             limparCampos();
         };
 
-        function renderizar(notas, filtroTag = null) {
+        function renderizar(notas, tipoFiltro = null, valorFiltro = null) {
             const lista = document.getElementById('listaNotas');
             lista.innerHTML = "";
             Object.keys(notas).reverse().forEach(id => {
                 const n = notas[id];
-                const tagsArray = n.tags ? n.tags.split(',').map(t => t.trim()) : [];
-                
-                if(filtroTag && !tagsArray.includes(filtroTag)) return;
+                const arrayMaterias = n.materia ? n.materia.split(',').map(s => s.trim()) : [];
+                const arrayTags = n.tags ? n.tags.split(',').map(s => s.trim()) : [];
 
-                const tagsHtml = tagsArray.map(t => `<span class="badge badge-tag">${t}</span>`).join('');
+                if(tipoFiltro === 'materia' && !arrayMaterias.includes(valorFiltro)) return;
+                if(tipoFiltro === 'tag' && !arrayTags.includes(valorFiltro)) return;
+
+                const matsHtml = arrayMaterias.map(m => `<span class="badge badge-materia">${m}</span>`).join('');
+                const tagsHtml = arrayTags.map(t => `<span class="badge badge-tag">${t}</span>`).join('');
                 
                 lista.innerHTML += `
                     <div class="note-item">
@@ -191,7 +205,7 @@
                             <button class="btn-action" style="background:#f1c40f" onclick="window.prepararEdicao('${id}')">✏️</button>
                             <button class="btn-action" style="background:#ff7675" onclick="window.apagar('${id}')">🗑️</button>
                         </div>
-                        <div>${tagsHtml}</div>
+                        <div>${matsHtml} ${tagsHtml}</div>
                         <small>${n.data}</small>
                         <h3 style="margin:10px 0">${n.assunto}</h3>
                         <p style="white-space: pre-wrap;">${n.conteudo}</p>
@@ -200,24 +214,28 @@
         }
 
         function atualizarFiltros(notas) {
+            const materias = new Set();
             const tags = new Set();
             Object.values(notas).forEach(n => {
+                if(n.materia) n.materia.split(',').forEach(m => materias.add(m.trim()));
                 if(n.tags) n.tags.split(',').forEach(t => tags.add(t.trim()));
             });
-            const div = document.getElementById('filtroTags');
-            div.innerHTML = Array.from(tags).sort().map(t => `<button class="filter-btn" onclick="filtrar('${t}')">${t}</button>`).join('');
+            document.getElementById('filtroMaterias').innerHTML = Array.from(materias).sort().map(m => `<button class="filter-btn" onclick="filtrar('materia', '${m}')">${m}</button>`).join('');
+            document.getElementById('filtroTags').innerHTML = Array.from(tags).sort().map(t => `<button class="filter-btn" onclick="filtrar('tag', '${t}')">${t}</button>`).join('');
         }
 
-        window.filtrar = (tag) => {
-            if(tag === 'todas') renderizar(todasNotas);
-            else renderizar(todasNotas, tag);
+        window.filtrar = (tipo, valor) => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            if(tipo === 'todas') renderizar(todasNotas);
+            else renderizar(todasNotas, tipo, valor);
         };
 
         window.prepararEdicao = (id) => {
             const n = todasNotas[id];
             document.getElementById('edit-id').value = id;
             document.getElementById('assunto').value = n.assunto;
-            document.getElementById('tags').value = n.tags;
+            document.getElementById('materia').value = n.materia || "";
+            document.getElementById('tags').value = n.tags || "";
             document.getElementById('conteudo').value = n.conteudo;
             document.getElementById('btnSalvar').innerText = "Atualizar Nota";
             document.getElementById('btnCancelar').style.display = "block";
@@ -233,6 +251,7 @@
 
         function limparCampos() {
             document.getElementById('assunto').value = "";
+            document.getElementById('materia').value = "";
             document.getElementById('tags').value = "";
             document.getElementById('conteudo').value = "";
         }
