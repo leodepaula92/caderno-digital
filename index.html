@@ -6,70 +6,72 @@
     <title>Meu Caderno Digital Cloud</title>
     <style>
         :root { --blue: #3498db; --bg: #e9ecef; --dark: #2c3e50; --white: #ffffff; }
-        
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
 
+        /* AUTH */
         #auth-container { background: var(--white); padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; margin-top: 50px; text-align: center; }
-        
         #app-container { display: none; width: 100%; max-width: 1100px; }
 
+        /* HEADER & LAYOUT */
         .header-app { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 30px; }
-
         .layout-grid { display: flex; gap: 30px; align-items: flex-start; }
-
         .sidebar { width: 250px; background: var(--white); padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); position: sticky; top: 20px; }
-        .sidebar h3 { font-size: 14px; margin: 15px 0 10px 0; border-bottom: 2px solid var(--blue); padding-bottom: 5px; color: var(--dark); text-transform: uppercase; }
+        .main-content { flex: 1; }
 
+        /* BOTÃO ADICIONAR */
+        .btn-add { background: var(--blue); color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 20px; font-size: 16px; width: 100%; }
+
+        /* MODAL (POP-UP) */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 600px; position: relative; max-height: 90vh; overflow-y: auto; }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; color: #666; }
+
+        /* CARDS DAS NOTAS */
+        .note-item { 
+            background: var(--white); padding: 20px; border-radius: 12px; margin-bottom: 15px; 
+            border-left: 6px solid var(--blue); cursor: pointer; transition: 0.2s; position: relative;
+        }
+        .note-item:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .note-item h3 { margin: 10px 0 5px 0; color: var(--dark); }
+        
+        /* FILTROS E BADGES */
         .filter-group { display: flex; flex-wrap: wrap; gap: 6px; }
-        .filter-btn { background: #f1f2f6; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; transition: 0.2s; }
-        .filter-btn.active { background: var(--blue) !important; color: white !important; font-weight: bold; }
-
-        .main-content { flex: 1; width: 100%; }
-        .card { background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 30px; box-sizing: border-box; }
-
-        .form-row { display: flex; gap: 15px; margin-bottom: 15px; }
-        .form-group { flex: 1; display: flex; flex-direction: column; text-align: left; }
-        
-        label { font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #333; }
-
-        input, textarea { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; box-sizing: border-box; margin-bottom: 10px; }
-        
-        .btn-blue { background: var(--blue); color: white; border: none; padding: 15px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; }
-
-        .note-item { background: var(--white); padding: 25px; border-radius: 12px; margin-bottom: 20px; border-left: 6px solid var(--blue); position: relative; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: left;}
-
-        .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-right: 8px; text-transform: uppercase; margin-bottom: 5px; }
+        .filter-btn { background: #f1f2f6; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; margin-bottom: 5px;}
+        .filter-btn.active { background: var(--blue); color: white; }
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-right: 5px; text-transform: uppercase; }
         .badge-materia { background: #e1f5fe; color: #0288d1; }
         .badge-tag { background: #fff3e0; color: #ef6c00; }
 
-        .actions { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; }
-        .btn-sair { background: #ff7675; padding: 8px 20px; border-radius: 8px; color: white; border: none; cursor: pointer; font-weight: bold; }
+        /* FORMULÁRIO */
+        .form-group { display: flex; flex-direction: column; margin-bottom: 15px; }
+        input, textarea { padding: 12px; border: 1px solid #ccc; border-radius: 8px; margin-top: 5px; width: 100%; box-sizing: border-box; }
+        .btn-blue { background: var(--blue); color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; }
+        .btn-sair { background: #ff7675; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div id="auth-container">
-        <h2 id="auth-title">📓 Login / Cadastro</h2>
-        <input type="email" id="email" placeholder="Seu e-mail">
-        <input type="password" id="password" placeholder="Sua senha">
-        <button class="btn-blue" id="btn-auth">Entrar</button>
-        
-        <p><a href="#" id="btn-recuperar" style="color: #e67e22; text-decoration: none; font-size: 13px; display: block; margin-top: 10px;">Esqueci minha senha</a></p>
-        
-        <p><a href="#" id="btn-switch" style="color: #3498db; text-decoration: none; font-size: 14px;">Criar uma conta</a></p>
+        <h2 id="auth-title">📓 Login</h2>
+        <input type="email" id="email" placeholder="E-mail">
+        <input type="password" id="password" placeholder="Senha">
+        <button class="btn-blue" id="btn-auth" style="margin-top:15px">Entrar</button>
+        <p><a href="#" id="btn-recuperar" style="color:#e67e22; text-decoration:none; font-size:13px">Esqueci a senha</a></p>
+        <p><a href="#" id="btn-switch" style="color:var(--blue); text-decoration:none; font-size:14px">Criar conta</a></p>
     </div>
 
     <div id="app-container">
         <header class="header-app">
             <div>
-                <h1 style="margin:0">📓 Meu Caderno Digital</h1>
-                <small id="user-display" style="color: #666;"></small>
+                <h1 style="margin:0">📓 Meu Caderno</h1>
+                <small id="user-display" style="color:gray"></small>
             </div>
             <button class="btn-sair" id="btn-sair">Sair</button>
         </header>
 
         <div class="layout-grid">
             <aside class="sidebar">
+                <button class="btn-add" onclick="abrirModalCadastro()">+ Adicionar Nota</button>
                 <button class="filter-btn active" id="btnTudo" onclick="window.filtrar('todas', '', this)">Exibir Tudo</button>
                 <h3>Matérias</h3>
                 <div id="filtroMaterias" class="filter-group"></div>
@@ -78,31 +80,51 @@
             </aside>
 
             <main class="main-content">
-                <div class="card">
-                    <input type="hidden" id="edit-id">
-                    <div class="form-group">
-                        <label>Assunto da Aula:</label>
-                        <input type="text" id="assunto" placeholder="Ex: Aula 01">
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Matéria:</label>
-                            <input type="text" id="materia" placeholder="Ex: TI">
-                        </div>
-                        <div class="form-group">
-                            <label>Tags:</label>
-                            <input type="text" id="tags" placeholder="Ex: GITHUB, SQL">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Conteúdo:</label>
-                        <textarea id="conteudo" rows="5" placeholder="Resumo da aula..."></textarea>
-                    </div>
-                    <button class="btn-blue" id="btnSalvar">Salvar no Caderno</button>
-                    <button id="btnCancelar" style="display:none; width:100%; border:none; background:none; color:gray; cursor:pointer; margin-top:10px; text-decoration:underline">Cancelar Edição</button>
-                </div>
+                <input type="text" id="inputBusca" placeholder="🔍 Buscar nas notas..." style="margin-bottom:20px; padding:12px; border-radius:10px; border:1px solid #ccc; width:100%; box-sizing:border-box">
                 <div id="listaNotas"></div>
             </main>
+        </div>
+    </div>
+
+    <div id="modalForm" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="fecharModalCadastro()">&times;</span>
+            <h2 id="modalTitulo">Nova Nota</h2>
+            <input type="hidden" id="edit-id">
+            <div class="form-group">
+                <label>Assunto:</label>
+                <input type="text" id="assunto" placeholder="Ex: Aula de SQL">
+            </div>
+            <div style="display:flex; gap:10px">
+                <div class="form-group" style="flex:1">
+                    <label>Matéria:</label>
+                    <input type="text" id="materia" placeholder="Ex: TI">
+                </div>
+                <div class="form-group" style="flex:1">
+                    <label>Tags:</label>
+                    <input type="text" id="tags" placeholder="Ex: DB, WEB">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Conteúdo:</label>
+                <textarea id="conteudo" rows="8" placeholder="Digite seu resumo..."></textarea>
+            </div>
+            <button class="btn-blue" id="btnSalvar">Salvar no Caderno</button>
+        </div>
+    </div>
+
+    <div id="modalLeitura" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="fecharModalLeitura()">&times;</span>
+            <div id="leituraBadges" style="margin-bottom:10px"></div>
+            <h1 id="leituraTitulo" style="margin:5px 0"></h1>
+            <small id="leituraData" style="color:gray"></small>
+            <hr style="margin:20px 0; border:0; border-top:1px solid #eee">
+            <div id="leituraConteudo" style="white-space: pre-wrap; line-height: 1.6; color:#333"></div>
+            <div style="margin-top:30px; display:flex; gap:10px">
+                <button id="btnEditarLeitura" class="filter-btn" style="background:#f1c40f; color:white; padding:10px 20px">Editar</button>
+                <button id="btnApagarLeitura" class="filter-btn" style="background:#ff7675; color:white; padding:10px 20px">Excluir</button>
+            </div>
         </div>
     </div>
 
