@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -18,21 +18,14 @@ const db = getDatabase(app);
 let userLogado = null;
 let todasNotas = {};
 
-// CONFIGURAÇÃO DO EDITOR COM BARRA DINÂMICA
+// CONFIG QUILL
 const quill = new Quill('#editor-container', {
     theme: 'snow',
-    placeholder: 'Digite seu resumo aqui...',
-    modules: { 
-        toolbar: [
-            ['bold', 'italic', 'underline'], 
-            [{ 'color': [] }], 
-            ['link', 'blockquote'], 
-            [{ 'list': 'ordered'}, { 'list': 'bullet' }]
-        ] 
-    }
+    placeholder: 'Escreva aqui...',
+    modules: { toolbar: [['bold', 'italic', 'underline'], [{ 'color': [] }], ['link', 'blockquote'], [{ 'list': 'ordered'}, { 'list': 'bullet' }]] }
 });
 
-// AUTH
+// LOGIN / CADASTRO
 const btnAuth = document.getElementById('btn-auth');
 const btnSwitch = document.getElementById('btn-switch');
 let isLogin = true;
@@ -46,8 +39,16 @@ btnSwitch.onclick = (e) => {
 btnAuth.onclick = () => {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
-    if(isLogin) signInWithEmailAndPassword(auth, email, pass).catch(e => alert("Erro no login"));
-    else createUserWithEmailAndPassword(auth, email, pass).catch(e => alert("Erro no cadastro"));
+    if(isLogin) signInWithEmailAndPassword(auth, email, pass).catch(() => alert("Erro no acesso."));
+    else createUserWithEmailAndPassword(auth, email, pass).catch(() => alert("Erro ao cadastrar."));
+};
+
+// RECUPERAR SENHA
+document.getElementById('btn-recuperar').onclick = (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    if(!email) return alert("Digite o e-mail primeiro.");
+    sendPasswordResetEmail(auth, email).then(() => alert("E-mail enviado!")).catch(() => alert("Erro ao enviar."));
 };
 
 document.getElementById('btn-sair').onclick = () => signOut(auth);
@@ -58,20 +59,16 @@ onAuthStateChanged(auth, (user) => {
         document.getElementById('auth-container').style.display = 'none';
         document.getElementById('app-container').style.display = 'block';
         document.getElementById('user-display').innerText = user.email;
-        iniciarApp(user.uid);
+        onValue(ref(db, `usuarios/${user.uid}/notas`), (snap) => {
+            todasNotas = snap.val() || {};
+            renderizar(todasNotas);
+            atualizarFiltros(todasNotas);
+        });
     } else {
         document.getElementById('auth-container').style.display = 'block';
         document.getElementById('app-container').style.display = 'none';
     }
 });
-
-function iniciarApp(uid) {
-    onValue(ref(db, `usuarios/${uid}/notas`), (snapshot) => {
-        todasNotas = snapshot.val() || {};
-        renderizar(todasNotas);
-        atualizarFiltros(todasNotas);
-    });
-}
 
 function renderizar(notas, tipoF = null, valorF = null) {
     const lista = document.getElementById('listaNotas');
@@ -79,17 +76,11 @@ function renderizar(notas, tipoF = null, valorF = null) {
     Object.keys(notas).reverse().forEach(id => {
         const n = notas[id];
         const arrayMats = n.materia ? n.materia.split(',').map(s => s.trim()) : [];
-        const arrayTags = n.tags ? n.tags.split(',').map(s => s.trim()) : [];
-        const corCard = n.cor || '#3498db';
-
         if(tipoF === 'materia' && !arrayMats.includes(valorF)) return;
-        if(tipoF === 'tag' && !arrayTags.includes(valorF)) return;
-
+        
         lista.innerHTML += `
-            <div class="note-item" onclick="verNota('${id}')" style="border-left-color: ${corCard}">
-                <div style="overflow:hidden; white-space:nowrap; display: flex; gap: 4px;">
-                    ${arrayMats.length ? `<span class="badge" style="background-color: ${corCard}20; color: ${corCard}; border: 1px solid ${corCard}50;">${arrayMats[0]}</span>` : ''}
-                </div>
+            <div class="note-item" onclick="verNota('${id}')" style="border-left-color: ${n.cor || '#3498db'}">
+                <small style="color:${n.cor}">${arrayMats[0] || ''}</small>
                 <h3>${n.assunto}</h3>
                 <div style="margin-top:auto"><small style="color:gray">${n.data || ''}</small></div>
             </div>`;
@@ -99,13 +90,8 @@ function renderizar(notas, tipoF = null, valorF = null) {
 window.verNota = (id) => {
     const n = todasNotas[id];
     document.getElementById('leituraTitulo').innerText = n.assunto;
-    document.getElementById('leituraData').innerText = n.data;
     document.getElementById('leituraConteudo').innerHTML = n.conteudo;
-    
-    const corCard = n.cor || '#3498db';
-    const arrayMats = n.materia ? n.materia.split(',').map(s => s.trim()) : [];
-    document.getElementById('leituraBadges').innerHTML = arrayMats.map(m => `<span class="badge" style="background-color: ${corCard}20; color: ${corCard}; border: 1px solid ${corCard}50; margin-right:5px">${m}</span>`).join('');
-
+    document.getElementById('leituraData').innerText = n.data;
     document.getElementById('btnEditarLeitura').onclick = () => prepararEdicao(id);
     document.getElementById('btnApagarLeitura').onclick = () => apagar(id);
     document.getElementById('modalLeitura').style.display = 'flex';
@@ -120,7 +106,6 @@ window.prepararEdicao = (id) => {
     document.getElementById('tags').value = n.tags || "";
     document.getElementById('corCard').value = n.cor || "#3498db";
     quill.root.innerHTML = n.conteudo;
-    document.getElementById('modalTitulo').innerText = "Editar Nota";
     document.getElementById('modalForm').style.display = 'flex';
 };
 
@@ -139,43 +124,20 @@ document.getElementById('btnSalvar').onclick = () => {
     fecharModalCadastro();
 };
 
-window.apagar = (id) => { if(confirm("Apagar nota?")) { remove(ref(db, `usuarios/${userLogado.uid}/notas/${id}`)); fecharModalLeitura(); } };
-window.abrirModalCadastro = () => { document.getElementById('modalForm').style.display = 'flex'; document.getElementById('modalTitulo').innerText = "Nova Nota"; limparForm(); };
-window.fecharModalCadastro = () => { document.getElementById('modalForm').style.display = 'none'; };
-window.fecharModalLeitura = () => { document.getElementById('modalLeitura').style.display = 'none'; };
-
-function limparForm() {
-    document.getElementById('edit-id').value = "";
-    document.getElementById('assunto').value = "";
-    document.getElementById('materia').value = "";
-    document.getElementById('tags').value = "";
-    document.getElementById('corCard').value = "#3498db";
-    quill.root.innerHTML = "";
-}
-
-document.getElementById('inputBusca').addEventListener('input', (e) => {
-    const termo = e.target.value.toLowerCase();
-    const filtradas = {};
-    Object.keys(todasNotas).forEach(id => {
-        const n = todasNotas[id];
-        if((n.assunto + n.conteudo).toLowerCase().includes(termo)) filtradas[id] = n;
-    });
-    renderizar(filtradas);
-});
+window.apagar = (id) => { if(confirm("Apagar?")) remove(ref(db, `usuarios/${userLogado.uid}/notas/${id}`)); fecharModalLeitura(); };
+window.abrirModalCadastro = () => { document.getElementById('modalForm').style.display = 'flex'; limparForm(); };
+window.fecharModalCadastro = () => document.getElementById('modalForm').style.display = 'none';
+window.fecharModalLeitura = () => document.getElementById('modalLeitura').style.display = 'none';
+function limparForm() { document.getElementById('edit-id').value = ""; document.getElementById('assunto').value = ""; quill.root.innerHTML = ""; }
 
 function atualizarFiltros(notas) {
-    const mSet = new Set(); const tSet = new Set();
-    Object.values(notas).forEach(n => {
-        if(n.materia) n.materia.split(',').forEach(m => mSet.add(m.trim()));
-        if(n.tags) n.tags.split(',').forEach(t => tSet.add(t.trim()));
-    });
+    const mSet = new Set();
+    Object.values(notas).forEach(n => { if(n.materia) n.materia.split(',').forEach(m => mSet.add(m.trim())); });
     document.getElementById('filtroMaterias').innerHTML = Array.from(mSet).map(m => `<button class="filter-btn" onclick="filtrar('materia', '${m}', this)">${m}</button>`).join('');
-    document.getElementById('filtroTags').innerHTML = Array.from(tSet).map(t => `<button class="filter-btn" onclick="filtrar('tag', '${t}', this)">${t}</button>`).join('');
 }
 
 window.filtrar = (tipo, valor, el) => {
     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
     if(el) el.classList.add('active');
-    if(tipo === 'todas') renderizar(todasNotas);
-    else renderizar(todasNotas, tipo, valor);
+    tipo === 'todas' ? renderizar(todasNotas) : renderizar(todasNotas, tipo, valor);
 };
