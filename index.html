@@ -15,36 +15,22 @@
         #auth-container { background: var(--white); padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; margin-top: 50px; text-align: center; }
         #app-container { display: none; width: 100%; max-width: 1200px; width: 95%; }
 
-        /* HEADER */
         .header-app { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 30px; }
         
-        /* LAYOUT EM GRID */
+        /* LAYOUT GRID */
         .layout-grid { display: flex; gap: 30px; align-items: flex-start; }
         .sidebar { width: 250px; background: var(--white); padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); position: sticky; top: 20px; }
         .main-content { flex: 1; }
 
-        #listaNotas { 
-            display: flex; 
-            flex-wrap: wrap; 
-            gap: 20px; 
-            justify-content: flex-start;
-        }
+        #listaNotas { display: flex; flex-wrap: wrap; gap: 20px; justify-content: flex-start; }
 
         /* CARDS QUADRADOS */
         .note-item { 
-            background: var(--white); 
-            padding: 15px; 
-            border-radius: 12px; 
-            border-left: 8px solid var(--blue); 
-            cursor: pointer; 
-            transition: 0.3s;
-            width: calc(25% - 15px); /* 4 por linha */
-            min-width: 220px;
-            height: 200px;
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            box-sizing: border-box;
+            background: var(--white); padding: 15px; border-radius: 12px; 
+            border-left: 10px solid var(--blue); /* Espessura da cor lateral */
+            cursor: pointer; transition: 0.3s;
+            width: calc(25% - 15px); min-width: 220px; height: 200px;
+            display: flex; flex-direction: column; box-shadow: 0 4px 6px rgba(0,0,0,0.05); box-sizing: border-box;
         }
         .note-item:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
         .note-item h3 { margin: 10px 0; font-size: 18px; color: var(--dark); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
@@ -56,21 +42,23 @@
 
         /* FORM */
         .form-group { display: flex; flex-direction: column; margin-bottom: 15px; }
+        label { font-weight: bold; margin-bottom: 5px; font-size: 14px; }
         input { padding: 12px; border: 1px solid #ccc; border-radius: 8px; width: 100%; box-sizing: border-box; }
-        .btn-blue { background: var(--blue); color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; }
+        .btn-blue { background: var(--blue); color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; font-size: 16px; }
         
+        /* FILTROS */
         .filter-group { display: flex; flex-wrap: wrap; gap: 6px; }
         .filter-btn { background: #f1f2f6; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
         .filter-btn.active { background: var(--blue); color: white; }
-        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-right: 5px; text-transform: uppercase; }
+        .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
         .badge-materia { background: #e1f5fe; color: #0288d1; }
         .badge-tag { background: #fff3e0; color: #ef6c00; }
 
-        #editor-container { height: 200px; }
+        #editor-container { height: 200px; background: #fff; }
 
-        /* RESPONSIVIDADE */
+        /* RESPONSIVO */
         @media (max-width: 1000px) { .note-item { width: calc(50% - 10px); } }
-        @media (max-width: 600px) { .note-item { width: 100%; } .layout-grid { flex-direction: column; } .sidebar { width: 100%; position: static; } }
+        @media (max-width: 600px) { .note-item { width: 100%; } .layout-grid { flex-direction: column; } .sidebar { width: 100%; } }
     </style>
 </head>
 <body>
@@ -128,8 +116,8 @@
                     <input type="text" id="tags" placeholder="Ex: HTML, JS">
                 </div>
                 <div class="form-group" style="flex:0.5">
-                    <label>Cor:</label>
-                    <input type="color" id="corCard" value="#3498db" style="height:45px; padding:5px">
+                    <label>Cor Lateral:</label>
+                    <input type="color" id="corCard" value="#3498db" style="height:45px; padding:5px; cursor:pointer">
                 </div>
             </div>
             <div class="form-group">
