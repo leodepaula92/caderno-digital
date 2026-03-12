@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Caderno Digital</title>
+    <style>
+        :root {
+            --bg-color: #e9ecef;
+            --card-bg: #ffffff;
+            --primary-blue: #3498db;
+            --text-dark: #2c3e50;
+            --label-color: #444;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 { color: var(--text-dark); margin-bottom: 5px; }
+        .header p { color: #666; margin-top: 0; }
+
+        .card {
+            background: var(--card-bg);
+            width: 100%;
+            max-width: 700px;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+        }
+
+        .form-group { margin-bottom: 20px; }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--label-color);
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box; /* Garante que o padding não quebre a largura */
+            outline: none;
+        }
+
+        input:focus, textarea:focus { border-color: var(--primary-blue); }
+
+        .btn-salvar {
+            width: 100%;
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-salvar:hover { background-color: #2980b9; }
+
+        .footer-hint { margin-top: 30px; color: #888; font-size: 14px; }
+        .footer-hint code { color: var(--primary-blue); font-weight: bold; }
+
+        /* Estilo das Notas Salvas */
+        .notes-container { width: 100%; max-width: 700px; margin-top: 40px; }
+        .note-item { 
+            background: white; padding: 20px; border-radius: 10px; 
+            margin-bottom: 15px; border-left: 6px solid var(--primary-blue);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>📓 Meu caderno digital</h1>
+        <p>Organize-se</p>
+    </div>
+
+    <div class="card">
+        <div class="form-group">
+            <label>Assunto:</label>
+            <input type="text" id="assunto" placeholder="Ex: Aula de Flexbox">
+        </div>
+
+        <div class="form-group">
+            <label>Data:</label>
+            <input type="date" id="data">
+        </div>
+
+        <div class="form-group">
+            <label>Conteúdo:</label>
+            <textarea id="conteudo" rows="6" placeholder="Escreva aqui... (códigos HTML/JS são aceitos)"></textarea>
+        </div>
+
+        <button class="btn-salvar" onclick="salvarNota()">Salvar no Caderno</button>
+    </div>
+
+    <p class="footer-hint">Dica: Use <code>&lt;br&gt;</code> para pular linhas no seu conteúdo.</p>
+
+    <div id="listaNotas" class="notes-container"></div>
+
+    <script>
+        // Setar a data de hoje automaticamente
+        document.getElementById('data').valueAsDate = new Date();
+
+        function salvarNota() {
+            const assunto = document.getElementById('assunto').value;
+            const data = document.getElementById('data').value;
+            const conteudo = document.getElementById('conteudo').value;
+
+            if(!assunto || !conteudo) {
+                alert("Por favor, preencha o assunto e o conteúdo!");
+                return;
+            }
+
+            const nota = { assunto, data, conteudo };
+            let notas = JSON.parse(localStorage.getItem('caderno_digital') || '[]');
+            notas.push(nota);
+            localStorage.setItem('caderno_digital', JSON.stringify(notas));
+
+            // Limpar campos
+            document.getElementById('assunto').value = '';
+            document.getElementById('conteudo').value = '';
+            
+            exibirNotas();
+        }
+
+        function exibirNotas() {
+            const lista = document.getElementById('listaNotas');
+            const notas = JSON.parse(localStorage.getItem('caderno_digital') || '[]');
+            
+            lista.innerHTML = notas.map(n => `
+                <div class="note-item">
+                    <small>${n.data.split('-').reverse().join('/')}</small>
+                    <h3>${n.assunto}</h3>
+                    <div>${n.conteudo}</div>
+                </div>
+            `).join('');
+        }
+
+        // Carregar ao iniciar
+        exibirNotas();
+    </script>
+</body>
+</html>
