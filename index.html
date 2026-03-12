@@ -6,42 +6,47 @@
     <title>Meu Caderno Digital Cloud</title>
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    
     <style>
         :root { --blue: #3498db; --bg: #e9ecef; --dark: #2c3e50; --white: #ffffff; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+
+        /* AUTH CONTAINER */
         #auth-container { background: var(--white); padding: 40px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 100%; max-width: 400px; margin-top: 50px; text-align: center; }
         #app-container { display: none; width: 95%; max-width: 1200px; }
+
         .header-app { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 30px; }
+        
+        /* LAYOUT GRID */
         .layout-grid { display: flex; gap: 30px; align-items: flex-start; }
         .sidebar { width: 250px; background: var(--white); padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); position: sticky; top: 20px; }
         .main-content { flex: 1; }
+
         #listaNotas { display: flex; flex-wrap: wrap; gap: 20px; justify-content: flex-start; }
-        
+
+        /* CARDS */
         .note-item { 
             background: var(--white); padding: 15px; border-radius: 12px; border-left: 10px solid var(--blue); 
             cursor: pointer; transition: 0.3s; width: calc(25% - 15px); min-width: 220px; height: 200px;
             display: flex; flex-direction: column; box-shadow: 0 4px 6px rgba(0,0,0,0.05); box-sizing: border-box;
         }
+        .note-item:hover { transform: translateY(-5px); box-shadow: 0 8px 15px rgba(0,0,0,0.1); }
         .note-item h3 { margin: 10px 0; font-size: 18px; color: var(--dark); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 
-        /* MODAL RESPONSIVO */
+        /* MODAL */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; padding: 10px; box-sizing: border-box; }
         .modal-content { background: white; padding: 25px; border-radius: 15px; width: 100%; max-width: 700px; position: relative; max-height: 95vh; overflow-y: auto; box-sizing: border-box; }
         .close-modal { position: absolute; top: 15px; right: 20px; font-size: 24px; cursor: pointer; z-index: 10; }
 
-        /* AJUSTE DO EDITOR QUILL PARA NÃO VAZAR */
-        .ql-toolbar.ql-snow {
-            display: flex;
-            flex-wrap: wrap; /* Faz os botões pularem linha se não couberem */
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-            background: #f8f9fa;
-        }
-        #editor-container { height: 250px; background: #fff; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; }
+        /* FIX EDITOR & TOOLTIP (LINK) */
+        .ql-toolbar.ql-snow { display: flex; flex-wrap: wrap; border-radius: 8px 8px 0 0; background: #f8f9fa; border: 1px solid #ccc !important; }
+        #editor-container { height: 250px; background: #fff; border-radius: 0 0 8px 8px; border: 1px solid #ccc !important; border-top: none !important; }
+        .ql-snow .ql-tooltip { left: 10px !important; top: 5px !important; white-space: nowrap; z-index: 2000; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .ql-snow .ql-tooltip input[type=text] { width: 150px !important; }
 
         .form-group { display: flex; flex-direction: column; margin-bottom: 15px; }
-        .row-inputs { display: flex; gap: 10px; flex-wrap: wrap; } /* Flex wrap para celulares */
-        .row-inputs > .form-group { flex: 1; min-width: 120px; }
+        .row-inputs { display: flex; gap: 10px; flex-wrap: wrap; }
+        .row-inputs > .form-group { flex: 1; min-width: 140px; }
 
         input { padding: 12px; border: 1px solid #ccc; border-radius: 8px; width: 100%; box-sizing: border-box; }
         .btn-blue { background: var(--blue); color: white; border: none; padding: 15px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
@@ -51,22 +56,20 @@
         .filter-btn { background: #f1f2f6; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
         .filter-btn.active { background: var(--blue); color: white; }
 
-        @media (max-width: 1000px) { .note-item { width: calc(50% - 10px); } }
-        @media (max-width: 650px) { 
-            .note-item { width: 100%; } 
-            .layout-grid { flex-direction: column; } 
-            .sidebar { width: 100%; position: static; margin-bottom: 20px; }
-            .row-inputs > .form-group:last-child { flex: 1; width: 100%; } /* Cor ocupa linha toda no celular se precisar */
-        }
+        @media (max-width: 650px) { .layout-grid { flex-direction: column; } .sidebar { width: 100%; position: static; } }
     </style>
 </head>
 <body>
+
     <div id="auth-container">
         <h2 id="auth-title">📓 Login</h2>
         <input type="email" id="email" placeholder="E-mail">
         <input type="password" id="password" placeholder="Senha">
-        <button class="btn-blue" id="btn-auth" style="margin-top:10px">Entrar</button>
-        <p><a href="#" id="btn-switch" style="color:var(--blue); text-decoration:none; font-size:14px">Criar conta</a></p>
+        <button class="btn-blue" id="btn-auth">Entrar</button>
+        
+        <p><a href="#" id="btn-recuperar" style="color:#e67e22; text-decoration:none; font-size:13px; display: block; margin-top: 15px;">Esqueci a minha senha</a></p>
+        
+        <p><a href="#" id="btn-switch" style="color:var(--blue); text-decoration:none; font-size:14px">Criar uma conta nova</a></p>
     </div>
 
     <div id="app-container">
@@ -74,6 +77,7 @@
             <div><h1 style="margin:0">📓 Meu Caderno</h1><small id="user-display" style="color:gray"></small></div>
             <button style="background:#ff7675; color:white; border:none; padding:8px 15px; border-radius:8px; cursor:pointer" id="btn-sair">Sair</button>
         </header>
+
         <div class="layout-grid">
             <aside class="sidebar">
                 <button style="background:var(--blue); color:white; border:none; padding:12px; border-radius:8px; width:100%; font-weight:bold; cursor:pointer; margin-bottom:20px" onclick="abrirModalCadastro()">+ Adicionar Nota</button>
@@ -91,12 +95,12 @@
     <div id="modalForm" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="fecharModalCadastro()">&times;</span>
-            <h2 id="modalTitulo" style="margin-top:0">Nova Nota</h2>
+            <h2 id="modalTitulo">Nova Nota</h2>
             <input type="hidden" id="edit-id">
             <div class="form-group"><label>Assunto:</label><input type="text" id="assunto" placeholder="Ex: Aula 01"></div>
             <div class="row-inputs">
-                <div class="form-group"><label>Matéria:</label><input type="text" id="materia" placeholder="Ex: Apps"></div>
-                <div class="form-group"><label>Tags:</label><input type="text" id="tags" placeholder="Ex: SQL"></div>
+                <div class="form-group"><label>Matéria:</label><input type="text" id="materia" placeholder="Ex: TI"></div>
+                <div class="form-group"><label>Tags:</label><input type="text" id="tags" placeholder="Ex: SQL, JS"></div>
                 <div class="form-group" style="max-width: 80px;"><label>Cor:</label><input type="color" id="corCard" value="#3498db" style="height:45px; padding:5px; cursor:pointer"></div>
             </div>
             <div class="form-group"><label>Conteúdo:</label><div id="editor-container"></div></div>
@@ -118,6 +122,7 @@
             </div>
         </div>
     </div>
+
     <script type="module" src="script.js"></script>
 </body>
 </html>
