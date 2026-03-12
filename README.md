@@ -37,3 +37,5 @@ As seguintes ferramentas e tecnologias foram utilizadas na construção do proje
 ├── index.html          # Estrutura principal e estilização (CSS Inline)
 ├── script.js           # Lógica do Firebase e manipulação do DOM
 └── README.md           # Documentação do projeto
+---
+Desenvolvido por Leonardo de Paula (2026).
