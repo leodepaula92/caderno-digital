@@ -3,34 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caderno Pro - Filtros Dinâmicos</title>
+    <title>Caderno Cloud Leo - Multi-Tags</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #e9ecef; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
         .layout-container { display: flex; gap: 20px; width: 100%; max-width: 1000px; align-items: flex-start; }
-        
-        /* Menu Lateral de Filtros */
         .sidebar { width: 250px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); position: sticky; top: 20px; }
         .sidebar h3 { font-size: 16px; margin-bottom: 10px; border-bottom: 2px solid #3498db; padding-bottom: 5px; }
         .filter-group { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 20px; }
         .filter-btn { background: #f1f2f6; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; transition: 0.3s; }
         .filter-btn:hover, .filter-btn.active { background: #3498db; color: white; }
-
-        /* Area Principal */
         .main-content { flex: 1; }
         .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 20px; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
         label { font-weight: bold; margin-bottom: 5px; font-size: 14px; }
         input, textarea { padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; }
-        
         .btn-salvar { width: 100%; background-color: #3498db; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
         .btn-cancelar { width: 100%; background: #95a5a6; color: white; border: none; padding: 8px; border-radius: 8px; margin-top: 5px; display: none; cursor: pointer; }
-
         .note-item { background: white; padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 6px solid #3498db; position: relative; }
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-right: 5px; }
+        .badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-right: 5px; margin-bottom: 5px; }
         .badge-materia { background: #e1f5fe; color: #0288d1; }
         .badge-flag { background: #fff3e0; color: #ef6c00; }
-        
         .actions { position: absolute; top: 10px; right: 10px; }
         .btn-edit { background: #f1c40f; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
         .btn-excluir { background: #ff7675; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
@@ -42,11 +35,9 @@
 
     <div class="layout-container">
         <div class="sidebar">
-            <button class="filter-btn active" onclick="filtrar('todas')" style="width:100%; margin-bottom:15px;">Exibir Tudo</button>
-            
+            <button class="filter-btn active" id="btnExibirTudo" onclick="filtrar('todas')" style="width:100%; margin-bottom:15px;">Exibir Tudo</button>
             <h3>Materias</h3>
             <div id="filtroMaterias" class="filter-group"></div>
-            
             <h3>Flags</h3>
             <div id="filtroFlags" class="filter-group"></div>
         </div>
@@ -56,36 +47,28 @@
                 <input type="hidden" id="edit-id">
                 <div class="form-group">
                     <label>Assunto da Aula:</label>
-                    <input type="text" id="assunto" placeholder="Ex: Introdução ao Firebase">
+                    <input type="text" id="assunto" placeholder="Ex: Aula 01">
                 </div>
-                
                 <div class="form-row">
                     <div class="form-group">
                         <label>Materia:</label>
-                        <input type="text" id="materia" placeholder="Ex: Banco de Dados">
+                        <input type="text" id="materia" placeholder="Use vírgula para várias">
                     </div>
                     <div class="form-group">
                         <label>Flag:</label>
-                        <input type="text" id="flag" placeholder="Ex: Urgente">
+                        <input type="text" id="flag" placeholder="Ex: TI, GITHUB">
                     </div>
                 </div>
-
                 <div class="form-row">
-                    <div class="form-group">
-                        <label>Data:</label>
-                        <input type="date" id="data">
-                    </div>
+                    <div class="form-group"><label>Data:</label><input type="date" id="data"></div>
                 </div>
-
                 <div class="form-group">
                     <label>Conteúdo:</label>
                     <textarea id="conteudo" rows="4"></textarea>
                 </div>
-                
                 <button class="btn-salvar" id="btnSalvar">Salvar no Caderno</button>
                 <button class="btn-cancelar" id="btnCancelar" onclick="cancelarEdicao()">Cancelar</button>
             </div>
-
             <div id="listaNotas"></div>
         </div>
     </div>
@@ -111,13 +94,12 @@
         let todasNotas = {};
         document.getElementById('data').valueAsDate = new Date();
 
-        // SALVAR
         document.getElementById('btnSalvar').onclick = () => {
             const id = document.getElementById('edit-id').value;
             const dados = {
                 assunto: document.getElementById('assunto').value,
-                materia: document.getElementById('materia').value.trim() || "Sem Materia",
-                flag: document.getElementById('flag').value.trim() || "Sem Flag",
+                materia: document.getElementById('materia').value,
+                flag: document.getElementById('flag').value,
                 data: document.getElementById('data').value,
                 conteudo: document.getElementById('conteudo').value
             };
@@ -130,7 +112,6 @@
             }
         };
 
-        // LER E ATUALIZAR FILTROS AUTOMATICAMENTE
         onValue(notasRef, (snapshot) => {
             todasNotas = snapshot.val() || {};
             renderizar(todasNotas);
@@ -143,10 +124,14 @@
             
             Object.keys(notas).reverse().forEach(id => {
                 const n = notas[id];
-                
-                // Lógica de Filtro
-                if (filtroMateria && n.materia !== filtroMateria) return;
-                if (filtroFlag && n.flag !== filtroFlag) return;
+                const arrayMaterias = n.materia ? n.materia.split(',').map(s => s.trim()) : [];
+                const arrayFlags = n.flag ? n.flag.split(',').map(s => s.trim()) : [];
+
+                if (filtroMateria && !arrayMaterias.includes(filtroMateria)) return;
+                if (filtroFlag && !arrayFlags.includes(filtroFlag)) return;
+
+                let htmlMaterias = arrayMaterias.map(m => `<span class="badge badge-materia">${m}</span>`).join('');
+                let htmlFlags = arrayFlags.map(f => `<span class="badge badge-flag">${f}</span>`).join('');
 
                 lista.innerHTML += `
                     <div class="note-item">
@@ -154,11 +139,10 @@
                             <button class="btn-edit" onclick="prepararEdicao('${id}')">✏️</button>
                             <button class="btn-excluir" onclick="apagar('${id}')">🗑️</button>
                         </div>
-                        <span class="badge badge-materia">${n.materia}</span>
-                        <span class="badge badge-flag">${n.flag}</span>
-                        <br><small>${n.data}</small>
+                        <div>${htmlMaterias} ${htmlFlags}</div>
+                        <small>${n.data.split('-').reverse().join('/')}</small>
                         <h3>${n.assunto}</h3>
-                        <p>${n.conteudo}</p>
+                        <p style="white-space: pre-wrap;">${n.conteudo}</p>
                     </div>`;
             });
         }
@@ -168,22 +152,21 @@
             const flags = new Set();
 
             Object.values(notas).forEach(n => {
-                if(n.materia) materias.add(n.materia);
-                if(n.flag) flags.add(n.flag);
+                if(n.materia) n.materia.split(',').forEach(s => materias.add(s.trim()));
+                if(n.flag) n.flag.split(',').forEach(s => flags.add(s.trim()));
             });
 
             const divM = document.getElementById('filtroMaterias');
             const divF = document.getElementById('filtroFlags');
 
-            divM.innerHTML = Array.from(materias).map(m => `<button class="filter-btn" onclick="filtrar('materia', '${m}')">${m}</button>`).join('');
-            divF.innerHTML = Array.from(flags).map(f => `<button class="filter-btn" onclick="filtrar('flag', '${f}')">${f}</button>`).join('');
+            divM.innerHTML = Array.from(materias).sort().map(m => `<button class="filter-btn" onclick="filtrar('materia', '${m}')">${m}</button>`).join('');
+            divF.innerHTML = Array.from(flags).sort().map(f => `<button class="filter-btn" onclick="filtrar('flag', '${f}')">${f}</button>`).join('');
         }
 
         window.filtrar = (tipo, valor) => {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             if(tipo === 'todas') renderizar(todasNotas);
-            else if(tipo === 'materia') renderizar(todasNotas, valor, null);
-            else if(tipo === 'flag') renderizar(todasNotas, null, valor);
+            else renderizar(todasNotas, tipo === 'materia' ? valor : null, tipo === 'flag' ? valor : null);
         };
 
         window.prepararEdicao = (id) => {
@@ -214,7 +197,7 @@
             document.getElementById('data').valueAsDate = new Date();
         }
 
-        window.apagar = (id) => { if(confirm("Apagar?")) remove(ref(db, `notas/${id}`)); };
+        window.apagar = (id) => { if(confirm("Apagar nota?")) remove(ref(db, `notas/${id}`)); };
     </script>
 </body>
 </html>
