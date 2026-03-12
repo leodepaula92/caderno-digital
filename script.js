@@ -20,7 +20,7 @@ let todasNotas = {};
 
 const quill = new Quill('#editor-container', {
     theme: 'snow',
-    modules: { toolbar: [['bold', 'italic', 'underline'], [{ 'color': [] }], ['link', 'blockquote', 'code-block'], [{ 'list': 'ordered'}, { 'list': 'bullet' }]] }
+    modules: { toolbar: [['bold', 'italic', 'underline'], [{ 'color': [] }], ['link'], [{ 'list': 'ordered'}, { 'list': 'bullet' }]] }
 });
 
 // AUTH
@@ -29,8 +29,7 @@ const btnSwitch = document.getElementById('btn-switch');
 let isLogin = true;
 
 btnSwitch.onclick = (e) => {
-    e.preventDefault();
-    isLogin = !isLogin;
+    e.preventDefault(); isLogin = !isLogin;
     document.getElementById('auth-title').innerText = isLogin ? "Login" : "Cadastro";
     btnAuth.innerText = isLogin ? "Entrar" : "Cadastrar";
 };
@@ -72,6 +71,8 @@ function renderizar(notas, tipoF = null, valorF = null) {
         const n = notas[id];
         const arrayMats = n.materia ? n.materia.split(',').map(s => s.trim()) : [];
         const arrayTags = n.tags ? n.tags.split(',').map(s => s.trim()) : [];
+        
+        // COR DINÂMICA
         const corCard = n.cor || '#3498db';
 
         if(tipoF === 'materia' && !arrayMats.includes(valorF)) return;
@@ -81,15 +82,13 @@ function renderizar(notas, tipoF = null, valorF = null) {
             <div class="note-item" onclick="verNota('${id}')" style="border-left-color: ${corCard}">
                 <div style="overflow:hidden; white-space:nowrap; display: flex; gap: 4px;">
                     ${arrayMats.length ? `
-                        <span class="badge" style="background-color: ${corCard}22; color: ${corCard}; border: 1px solid ${corCard}44;">
+                        <span class="badge" style="background-color: ${corCard}20; color: ${corCard}; border: 1px solid ${corCard}50;">
                             ${arrayMats[0]}
                         </span>` : ''}
                     ${arrayTags.length ? `<span class="badge badge-tag">${arrayTags[0]}</span>` : ''}
                 </div>
                 <h3>${n.assunto}</h3>
-                <div style="margin-top:auto">
-                    <small style="color:gray">${n.data || ''}</small>
-                </div>
+                <div style="margin-top:auto"><small style="color:gray">${n.data || ''}</small></div>
             </div>`;
     });
 }
@@ -97,8 +96,17 @@ function renderizar(notas, tipoF = null, valorF = null) {
 window.verNota = (id) => {
     const n = todasNotas[id];
     document.getElementById('leituraTitulo').innerText = n.assunto;
-    document.getElementById('leituraData').innerText = "Data: " + n.data;
+    document.getElementById('leituraData').innerText = n.data;
     document.getElementById('leituraConteudo').innerHTML = n.conteudo;
+    
+    const corCard = n.cor || '#3498db';
+    const arrayMats = n.materia ? n.materia.split(',').map(s => s.trim()) : [];
+    const arrayTags = n.tags ? n.tags.split(',').map(s => s.trim()) : [];
+    
+    document.getElementById('leituraBadges').innerHTML = 
+        arrayMats.map(m => `<span class="badge" style="background-color: ${corCard}20; color: ${corCard}; border: 1px solid ${corCard}50; margin-right:5px">${m}</span>`).join('') +
+        arrayTags.map(t => `<span class="badge badge-tag">${t}</span>`).join('');
+
     document.getElementById('btnEditarLeitura').onclick = () => prepararEdicao(id);
     document.getElementById('btnApagarLeitura').onclick = () => apagar(id);
     document.getElementById('modalLeitura').style.display = 'flex';
@@ -133,8 +141,7 @@ document.getElementById('btnSalvar').onclick = () => {
 };
 
 window.apagar = (id) => { if(confirm("Apagar nota?")) { remove(ref(db, `usuarios/${userLogado.uid}/notas/${id}`)); fecharModalLeitura(); } };
-
-window.abrirModalCadastro = () => { document.getElementById('modalForm').style.display = 'flex'; limparForm(); };
+window.abrirModalCadastro = () => { document.getElementById('modalForm').style.display = 'flex'; document.getElementById('modalTitulo').innerText = "Nova Nota"; limparForm(); };
 window.fecharModalCadastro = () => { document.getElementById('modalForm').style.display = 'none'; };
 window.fecharModalLeitura = () => { document.getElementById('modalLeitura').style.display = 'none'; };
 
