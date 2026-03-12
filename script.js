@@ -18,6 +18,7 @@ const db = getDatabase(app);
 let userLogado = null;
 let todasNotas = {};
 
+// CONFIGURAÇÃO DO EDITOR COM BARRA DINÂMICA
 const quill = new Quill('#editor-container', {
     theme: 'snow',
     placeholder: 'Digite seu resumo aqui...',
@@ -98,7 +99,7 @@ function renderizar(notas, tipoF = null, valorF = null) {
 window.verNota = (id) => {
     const n = todasNotas[id];
     document.getElementById('leituraTitulo').innerText = n.assunto;
-    document.getElementById('leituraData').innerText = "Criado em: " + n.data;
+    document.getElementById('leituraData').innerText = n.data;
     document.getElementById('leituraConteudo').innerHTML = n.conteudo;
     
     const corCard = n.cor || '#3498db';
@@ -157,8 +158,7 @@ document.getElementById('inputBusca').addEventListener('input', (e) => {
     const filtradas = {};
     Object.keys(todasNotas).forEach(id => {
         const n = todasNotas[id];
-        const textoBusca = (n.assunto + n.conteudo).toLowerCase();
-        if(textoBusca.includes(termo)) filtradas[id] = n;
+        if((n.assunto + n.conteudo).toLowerCase().includes(termo)) filtradas[id] = n;
     });
     renderizar(filtradas);
 });
