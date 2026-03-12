@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Caderno Digital Pro</title>
+    <title>Meu Caderno Digital Cloud</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div id="auth-container">
-        <h2 id="auth-title">📓 Meu Caderno Cloud</h2>
+        <h2>📓 Meu Caderno Cloud</h2>
         <input type="email" id="email" placeholder="E-mail">
         <input type="password" id="password" placeholder="Senha">
         <button class="btn-blue" id="btn-auth">Entrar</button>
@@ -26,30 +26,28 @@
         </div>
 
         <div class="layout-grid">
-            <div class="sidebar">
+            <aside class="sidebar">
                 <button class="filter-btn active" id="btnTudo">Exibir Tudo</button>
                 <h3>Matérias</h3>
                 <div id="filtroMaterias" class="filter-group"></div>
                 <h3>Tags</h3>
                 <div id="filtroTags" class="filter-group"></div>
-            </div>
+            </aside>
 
-            <div class="main-content">
+            <main class="main-content">
                 <div class="card">
                     <input type="hidden" id="edit-id">
-                    <label><b>Assunto da Aula:</b></label>
-                    <input type="text" id="assunto" placeholder="Ex: Aula de Flexbox">
+                    <input type="text" id="assunto" placeholder="Assunto da Aula">
                     <div class="form-row">
-                        <div><label><b>Matéria:</b></label><input type="text" id="materia" placeholder="Ex: Programação"></div>
-                        <div><label><b>Tags:</b></label><input type="text" id="tags" placeholder="Ex: TI, GITHUB"></div>
+                        <input type="text" id="materia" placeholder="Matéria">
+                        <input type="text" id="tags" placeholder="Tags (ex: TI, GITHUB)">
                     </div>
-                    <label><b>Conteúdo:</b></label>
                     <textarea id="conteudo" rows="5" placeholder="Resumo da aula..."></textarea>
                     <button class="btn-blue" id="btnSalvar">Salvar no Caderno</button>
-                    <button id="btnCancelar" style="display:none; width:100%; margin-top:10px; background:none; border:none; color:#666; cursor:pointer; text-decoration:underline">Cancelar Edição</button>
+                    <button id="btnCancelar" style="display:none; width:100%; margin-top:10px; background:none; border:none; color:#666; cursor:pointer;">Cancelar Edição</button>
                 </div>
                 <div id="listaNotas"></div>
-            </div>
+            </main>
         </div>
     </div>
 
