@@ -18,10 +18,18 @@ const db = getDatabase(app);
 let userLogado = null;
 let todasNotas = {};
 
-// EDITOR QUILL
+// INICIALIZAÇÃO DO EDITOR QUILL
 const quill = new Quill('#editor-container', {
     theme: 'snow',
-    modules: { toolbar: [['bold', 'italic', 'underline'], [{ 'color': [] }, { 'background': [] }], ['link'], [{ 'list': 'ordered'}, { 'list': 'bullet' }]] }
+    placeholder: 'Escreva suas anotações aqui...',
+    modules: { 
+        toolbar: [
+            ['bold', 'italic', 'underline'], 
+            [{ 'color': [] }, { 'background': [] }], 
+            ['link', 'blockquote', 'code-block'], 
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }]
+        ] 
+    }
 });
 
 // AUTH
@@ -39,8 +47,8 @@ btnSwitch.onclick = (e) => {
 btnAuth.onclick = () => {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
-    if(isLogin) signInWithEmailAndPassword(auth, email, pass).catch(e => alert("Erro ao entrar"));
-    else createUserWithEmailAndPassword(auth, email, pass).catch(e => alert("Erro ao cadastrar"));
+    if(isLogin) signInWithEmailAndPassword(auth, email, pass).catch(e => alert("Usuário ou senha inválidos"));
+    else createUserWithEmailAndPassword(auth, email, pass).catch(e => alert("Erro ao criar conta"));
 };
 
 document.getElementById('btn-sair').onclick = () => signOut(auth);
@@ -50,7 +58,7 @@ onAuthStateChanged(auth, (user) => {
         userLogado = user;
         document.getElementById('auth-container').style.display = 'none';
         document.getElementById('app-container').style.display = 'block';
-        document.getElementById('user-display').innerText = user.email;
+        document.getElementById('user-display').innerText = "Logado como: " + user.email;
         iniciarApp(user.uid);
     } else {
         document.getElementById('auth-container').style.display = 'block';
@@ -58,7 +66,7 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// LOGICA
+// LOGICA DO BANCO DE DADOS
 function iniciarApp(uid) {
     onValue(ref(db, `usuarios/${uid}/notas`), (snapshot) => {
         todasNotas = snapshot.val() || {};
@@ -78,13 +86,17 @@ function renderizar(notas, tipoF = null, valorF = null) {
         if(tipoF === 'materia' && !arrayMats.includes(valorF)) return;
         if(tipoF === 'tag' && !arrayTags.includes(valorF)) return;
 
+        // AQUI A COR É APLICADA NA BORDA ESQUERDA
         lista.innerHTML += `
             <div class="note-item" onclick="verNota('${id}')" style="border-left-color: ${n.cor || '#3498db'}">
-                <div style="overflow:hidden; white-space:nowrap">
+                <div style="overflow:hidden; white-space:nowrap; display: flex; gap: 4px;">
                     ${arrayMats.length ? `<span class="badge badge-materia">${arrayMats[0]}</span>` : ''}
+                    ${arrayTags.length ? `<span class="badge badge-tag">${arrayTags[0]}</span>` : ''}
                 </div>
                 <h3>${n.assunto}</h3>
-                <div style="margin-top:auto"><small style="color:gray">${n.data || ''}</small></div>
+                <div style="margin-top:auto">
+                    <small style="color:gray">${n.data || ''}</small>
+                </div>
             </div>`;
     });
 }
@@ -92,8 +104,15 @@ function renderizar(notas, tipoF = null, valorF = null) {
 window.verNota = (id) => {
     const n = todasNotas[id];
     document.getElementById('leituraTitulo').innerText = n.assunto;
-    document.getElementById('leituraData').innerText = n.data;
+    document.getElementById('leituraData').innerText = "Criado em: " + n.data;
     document.getElementById('leituraConteudo').innerHTML = n.conteudo;
+    
+    const arrayMats = n.materia ? n.materia.split(',').map(s => s.trim()) : [];
+    const arrayTags = n.tags ? n.tags.split(',').map(s => s.trim()) : [];
+    document.getElementById('leituraBadges').innerHTML = 
+        arrayMats.map(m => `<span class="badge badge-materia">${m}</span>`).join('') +
+        arrayTags.map(t => `<span class="badge badge-tag">${t}</span>`).join('');
+
     document.getElementById('btnEditarLeitura').onclick = () => prepararEdicao(id);
     document.getElementById('btnApagarLeitura').onclick = () => apagar(id);
     document.getElementById('modalLeitura').style.display = 'flex';
@@ -106,7 +125,7 @@ window.prepararEdicao = (id) => {
     document.getElementById('assunto').value = n.assunto;
     document.getElementById('materia').value = n.materia || "";
     document.getElementById('tags').value = n.tags || "";
-    document.getElementById('corCard').value = n.cor || "#3498db";
+    document.getElementById('corCard').value = n.cor || "#3498db"; // Carrega a cor salva
     quill.root.innerHTML = n.conteudo;
     document.getElementById('modalTitulo').innerText = "Editar Nota";
     document.getElementById('modalForm').style.display = 'flex';
@@ -118,7 +137,7 @@ document.getElementById('btnSalvar').onclick = () => {
         assunto: document.getElementById('assunto').value,
         materia: document.getElementById('materia').value,
         tags: document.getElementById('tags').value,
-        cor: document.getElementById('corCard').value,
+        cor: document.getElementById('corCard').value, // SALVA A COR NO FIREBASE
         conteudo: quill.root.innerHTML,
         data: new Date().toLocaleDateString('pt-BR')
     };
@@ -127,9 +146,9 @@ document.getElementById('btnSalvar').onclick = () => {
     fecharModalCadastro();
 };
 
-window.apagar = (id) => { if(confirm("Apagar nota?")) { remove(ref(db, `usuarios/${userLogado.uid}/notas/${id}`)); fecharModalLeitura(); } };
+window.apagar = (id) => { if(confirm("Deseja apagar esta nota?")) { remove(ref(db, `usuarios/${userLogado.uid}/notas/${id}`)); fecharModalLeitura(); } };
 
-// MODAIS
+// CONTROLE DE MODAIS
 window.abrirModalCadastro = () => { document.getElementById('modalForm').style.display = 'flex'; document.getElementById('modalTitulo').innerText = "Nova Nota"; limparForm(); };
 window.fecharModalCadastro = () => { document.getElementById('modalForm').style.display = 'none'; };
 window.fecharModalLeitura = () => { document.getElementById('modalLeitura').style.display = 'none'; };
