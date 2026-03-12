@@ -1,5 +1,12 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { 
+    getAuth, 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword, 
+    onAuthStateChanged, 
+    signOut,
+    sendPasswordResetEmail 
+} from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
 const firebaseConfig = {
@@ -18,15 +25,16 @@ const db = getDatabase(app);
 let userLogado = null;
 let todasNotas = {};
 
-// --- AUTH ---
+// --- LÓGICA DE AUTENTICAÇÃO ---
 const btnAuth = document.getElementById('btn-auth');
 const btnSwitch = document.getElementById('btn-switch');
+const btnRecuperar = document.getElementById('btn-recuperar');
 let isLogin = true;
 
 btnSwitch.onclick = (e) => {
     e.preventDefault();
     isLogin = !isLogin;
-    document.querySelector('#auth-container h2').innerText = isLogin ? "Login" : "Cadastro";
+    document.getElementById('auth-title').innerText = isLogin ? "Login" : "Cadastro";
     btnAuth.innerText = isLogin ? "Entrar" : "Cadastrar";
     btnSwitch.innerText = isLogin ? "Criar uma conta" : "Já tenho conta";
 };
@@ -34,8 +42,19 @@ btnSwitch.onclick = (e) => {
 btnAuth.onclick = () => {
     const email = document.getElementById('email').value;
     const pass = document.getElementById('password').value;
-    if(isLogin) signInWithEmailAndPassword(auth, email, pass).catch(e => alert(e.message));
-    else createUserWithEmailAndPassword(auth, email, pass).catch(e => alert(e.message));
+    if(isLogin) signInWithEmailAndPassword(auth, email, pass).catch(e => alert("Erro: " + e.message));
+    else createUserWithEmailAndPassword(auth, email, pass).catch(e => alert("Erro: " + e.message));
+};
+
+// RECUPERAR SENHA
+btnRecuperar.onclick = (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    if (!email) return alert("Digite seu e-mail no campo acima primeiro!");
+    
+    sendPasswordResetEmail(auth, email)
+        .then(() => alert("E-mail de recuperação enviado! Verifique sua caixa de entrada."))
+        .catch(e => alert("Erro: " + e.message));
 };
 
 document.getElementById('btn-sair').onclick = () => signOut(auth);
@@ -53,7 +72,7 @@ onAuthStateChanged(auth, (user) => {
     }
 });
 
-// --- APP CORE ---
+// --- LÓGICA DO CADERNO ---
 function iniciarApp(uid) {
     onValue(ref(db, `usuarios/${uid}/notas`), (snapshot) => {
         todasNotas = snapshot.val() || {};
@@ -109,7 +128,6 @@ function atualizarFiltros(notas) {
     document.getElementById('filtroTags').innerHTML = Array.from(tSet).map(t => `<button class="filter-btn" onclick="filtrar('tag', '${t}', this)">${t}</button>`).join('');
 }
 
-// --- FUNÇÕES GLOBAIS ---
 window.prepararEdicao = (id) => {
     const n = todasNotas[id];
     document.getElementById('edit-id').value = id;
@@ -134,17 +152,17 @@ document.getElementById('btnSalvar').onclick = () => {
     };
     if(id) update(ref(db, `usuarios/${userLogado.uid}/notas/${id}`), dados).then(() => cancelarEdicao());
     else push(ref(db, `usuarios/${userLogado.uid}/notas`), dados);
-    limparCampos();
+    limparForm();
 };
 
 window.cancelarEdicao = () => {
     document.getElementById('edit-id').value = "";
     document.getElementById('btnSalvar').innerText = "Salvar no Caderno";
     document.getElementById('btnCancelar').style.display = "none";
-    limparCampos();
+    limparForm();
 };
 
-function limparCampos() {
+function limparForm() {
     document.getElementById('assunto').value = ""; document.getElementById('materia').value = "";
     document.getElementById('tags').value = ""; document.getElementById('conteudo').value = "";
 }
