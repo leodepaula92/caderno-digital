@@ -3,78 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Caderno Cloud Leo - Multi-Tags</title>
+    <title>Meu Caderno Cloud - Multiuser</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #e9ecef; display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
-        .layout-container { display: flex; gap: 20px; width: 100%; max-width: 1000px; align-items: flex-start; }
-        .sidebar { width: 250px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); position: sticky; top: 20px; }
-        .sidebar h3 { font-size: 16px; margin-bottom: 10px; border-bottom: 2px solid #3498db; padding-bottom: 5px; }
-        .filter-group { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 20px; }
-        .filter-btn { background: #f1f2f6; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; transition: 0.3s; }
-        .filter-btn:hover, .filter-btn.active { background: #3498db; color: white; }
-        .main-content { flex: 1; }
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
-        label { font-weight: bold; margin-bottom: 5px; font-size: 14px; }
-        input, textarea { padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 14px; }
-        .btn-salvar { width: 100%; background-color: #3498db; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
-        .btn-cancelar { width: 100%; background: #95a5a6; color: white; border: none; padding: 8px; border-radius: 8px; margin-top: 5px; display: none; cursor: pointer; }
-        .note-item { background: white; padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 6px solid #3498db; position: relative; }
-        .badge { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; margin-right: 5px; margin-bottom: 5px; }
-        .badge-materia { background: #e1f5fe; color: #0288d1; }
-        .badge-flag { background: #fff3e0; color: #ef6c00; }
-        .actions { position: absolute; top: 10px; right: 10px; }
-        .btn-edit { background: #f1c40f; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
-        .btn-excluir { background: #ff7675; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; }
+        :root { --blue: #3498db; --bg: #e9ecef; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); display: flex; flex-direction: column; align-items: center; padding: 20px; margin: 0; }
+        
+        /* Telas */
+        #auth-container, #app-container { width: 100%; max-width: 400px; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 50px; }
+        #app-container { max-width: 1000px; display: none; } /* Escondido até logar */
+        
+        .layout { display: flex; gap: 20px; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-blue { background: var(--blue); color: white; margin-top: 10px; }
+        .btn-link { background: none; color: var(--blue); text-decoration: underline; margin-top: 10px; }
+        
+        .header-user { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1000px; margin-bottom: 20px; }
+        .note-item { background: white; padding: 20px; border-radius: 10px; margin-bottom: 15px; border-left: 6px solid var(--blue); position: relative; }
+        .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; margin-right: 5px; background: #eee; }
     </style>
 </head>
 <body>
 
-    <h1>📓 Meu Caderno Digital</h1>
+    <div id="auth-container">
+        <h2 id="auth-title">Login</h2>
+        <input type="email" id="email" placeholder="Seu e-mail">
+        <input type="password" id="password" placeholder="Sua senha">
+        <button class="btn-blue" id="btn-auth">Entrar</button>
+        <button class="btn-link" id="btn-switch">Criar uma conta</button>
+    </div>
 
-    <div class="layout-container">
-        <div class="sidebar">
-            <button class="filter-btn active" id="btnExibirTudo" onclick="filtrar('todas')" style="width:100%; margin-bottom:15px;">Exibir Tudo</button>
-            <h3>Materias</h3>
-            <div id="filtroMaterias" class="filter-group"></div>
-            <h3>Flags</h3>
-            <div id="filtroFlags" class="filter-group"></div>
+    <div id="app-container">
+        <div class="header-user">
+            <span id="user-email"></span>
+            <button onclick="logout()" style="width: auto; padding: 5px 15px; background: #ff7675; color: white;">Sair</button>
         </div>
 
-        <div class="main-content">
-            <div class="card">
-                <input type="hidden" id="edit-id">
-                <div class="form-group">
-                    <label>Assunto da Aula:</label>
-                    <input type="text" id="assunto" placeholder="Ex: Aula 01">
+        <div class="layout">
+            <div style="flex: 1;">
+                <div style="background: #f9f9f9; padding: 20px; border-radius: 10px;">
+                    <input type="hidden" id="edit-id">
+                    <input type="text" id="assunto" placeholder="Assunto da Aula">
+                    <input type="text" id="flag" placeholder="Tags (separadas por vírgula)">
+                    <textarea id="conteudo" rows="4" placeholder="Conteúdo..."></textarea>
+                    <button class="btn-blue" id="btnSalvar">Salvar Nota</button>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>Materia:</label>
-                        <input type="text" id="materia" placeholder="Use vírgula para várias">
-                    </div>
-                    <div class="form-group">
-                        <label>Flag:</label>
-                        <input type="text" id="flag" placeholder="Ex: TI, GITHUB">
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group"><label>Data:</label><input type="date" id="data"></div>
-                </div>
-                <div class="form-group">
-                    <label>Conteúdo:</label>
-                    <textarea id="conteudo" rows="4"></textarea>
-                </div>
-                <button class="btn-salvar" id="btnSalvar">Salvar no Caderno</button>
-                <button class="btn-cancelar" id="btnCancelar" onclick="cancelarEdicao()">Cancelar</button>
             </div>
-            <div id="listaNotas"></div>
+            <div id="listaNotas" style="flex: 1.5;"></div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
@@ -88,116 +69,85 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
         const db = getDatabase(app);
-        const notasRef = ref(db, 'notas');
+        let userLogado = null;
 
-        let todasNotas = {};
-        document.getElementById('data').valueAsDate = new Date();
+        // --- LÓGICA DE AUTH ---
+        const btnAuth = document.getElementById('btn-auth');
+        const btnSwitch = document.getElementById('btn-switch');
+        let isLogin = true;
 
-        document.getElementById('btnSalvar').onclick = () => {
-            const id = document.getElementById('edit-id').value;
-            const dados = {
-                assunto: document.getElementById('assunto').value,
-                materia: document.getElementById('materia').value,
-                flag: document.getElementById('flag').value,
-                data: document.getElementById('data').value,
-                conteudo: document.getElementById('conteudo').value
-            };
+        btnSwitch.onclick = () => {
+            isLogin = !isLogin;
+            document.getElementById('auth-title').innerText = isLogin ? "Login" : "Cadastro";
+            btnAuth.innerText = isLogin ? "Entrar" : "Cadastrar";
+            btnSwitch.innerText = isLogin ? "Criar uma conta" : "Já tenho conta";
+        };
 
-            if (id) {
-                update(ref(db, `notas/${id}`), dados).then(() => cancelarEdicao());
+        btnAuth.onclick = () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+            if(isLogin) {
+                signInWithEmailAndPassword(auth, email, pass).catch(e => alert("Erro: " + e.message));
             } else {
-                push(notasRef, dados);
-                limparForm();
+                createUserWithEmailAndPassword(auth, email, pass).catch(e => alert("Erro: " + e.message));
             }
         };
 
-        onValue(notasRef, (snapshot) => {
-            todasNotas = snapshot.val() || {};
-            renderizar(todasNotas);
-            atualizarFiltrosLaterais(todasNotas);
+        window.logout = () => signOut(auth);
+
+        // MONITOR DE USUÁRIO (Saber se está logado ou não)
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                userLogado = user;
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('app-container').style.display = 'block';
+                document.getElementById('user-email').innerText = "Logado como: " + user.email;
+                carregarNotas(user.uid);
+            } else {
+                userLogado = null;
+                document.getElementById('auth-container').style.display = 'block';
+                document.getElementById('app-container').style.display = 'none';
+            }
         });
 
-        function renderizar(notas, filtroMateria = null, filtroFlag = null) {
-            const lista = document.getElementById('listaNotas');
-            lista.innerHTML = "";
-            
-            Object.keys(notas).reverse().forEach(id => {
-                const n = notas[id];
-                const arrayMaterias = n.materia ? n.materia.split(',').map(s => s.trim()) : [];
-                const arrayFlags = n.flag ? n.flag.split(',').map(s => s.trim()) : [];
-
-                if (filtroMateria && !arrayMaterias.includes(filtroMateria)) return;
-                if (filtroFlag && !arrayFlags.includes(filtroFlag)) return;
-
-                let htmlMaterias = arrayMaterias.map(m => `<span class="badge badge-materia">${m}</span>`).join('');
-                let htmlFlags = arrayFlags.map(f => `<span class="badge badge-flag">${f}</span>`).join('');
-
-                lista.innerHTML += `
-                    <div class="note-item">
-                        <div class="actions">
-                            <button class="btn-edit" onclick="prepararEdicao('${id}')">✏️</button>
-                            <button class="btn-excluir" onclick="apagar('${id}')">🗑️</button>
-                        </div>
-                        <div>${htmlMaterias} ${htmlFlags}</div>
-                        <small>${n.data.split('-').reverse().join('/')}</small>
-                        <h3>${n.assunto}</h3>
-                        <p style="white-space: pre-wrap;">${n.conteudo}</p>
-                    </div>`;
+        // --- LÓGICA DO CADERNO ---
+        function carregarNotas(uid) {
+            const notasUserRef = ref(db, `usuarios/${uid}/notas`);
+            onValue(notasUserRef, (snapshot) => {
+                const lista = document.getElementById('listaNotas');
+                lista.innerHTML = "";
+                const notas = snapshot.val();
+                if(notas) {
+                    Object.keys(notas).reverse().forEach(id => {
+                        const n = notas[id];
+                        lista.innerHTML += `
+                            <div class="note-item">
+                                <h3>${n.assunto}</h3>
+                                <p>${n.conteudo}</p>
+                                <button onclick="apagarNota('${id}')" style="background:red; color:white; border:none; padding:5px; border-radius:4px; cursor:pointer;">Apagar</button>
+                            </div>`;
+                    });
+                }
             });
         }
 
-        function atualizarFiltrosLaterais(notas) {
-            const materias = new Set();
-            const flags = new Set();
-
-            Object.values(notas).forEach(n => {
-                if(n.materia) n.materia.split(',').forEach(s => materias.add(s.trim()));
-                if(n.flag) n.flag.split(',').forEach(s => flags.add(s.trim()));
+        document.getElementById('btnSalvar').onclick = () => {
+            if(!userLogado) return;
+            const notasUserRef = ref(db, `usuarios/${userLogado.uid}/notas`);
+            push(notasUserRef, {
+                assunto: document.getElementById('assunto').value,
+                conteudo: document.getElementById('conteudo').value,
+                flag: document.getElementById('flag').value
             });
-
-            const divM = document.getElementById('filtroMaterias');
-            const divF = document.getElementById('filtroFlags');
-
-            divM.innerHTML = Array.from(materias).sort().map(m => `<button class="filter-btn" onclick="filtrar('materia', '${m}')">${m}</button>`).join('');
-            divF.innerHTML = Array.from(flags).sort().map(f => `<button class="filter-btn" onclick="filtrar('flag', '${f}')">${f}</button>`).join('');
-        }
-
-        window.filtrar = (tipo, valor) => {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            if(tipo === 'todas') renderizar(todasNotas);
-            else renderizar(todasNotas, tipo === 'materia' ? valor : null, tipo === 'flag' ? valor : null);
-        };
-
-        window.prepararEdicao = (id) => {
-            const n = todasNotas[id];
-            document.getElementById('edit-id').value = id;
-            document.getElementById('assunto').value = n.assunto;
-            document.getElementById('materia').value = n.materia;
-            document.getElementById('flag').value = n.flag;
-            document.getElementById('data').value = n.data;
-            document.getElementById('conteudo').value = n.conteudo;
-            document.getElementById('btnSalvar').innerText = "Atualizar Nota";
-            document.getElementById('btnCancelar').style.display = "block";
-            window.scrollTo(0,0);
-        };
-
-        window.cancelarEdicao = () => {
-            document.getElementById('edit-id').value = "";
-            limparForm();
-            document.getElementById('btnSalvar').innerText = "Salvar no Caderno";
-            document.getElementById('btnCancelar').style.display = "none";
-        };
-
-        function limparForm() {
             document.getElementById('assunto').value = "";
-            document.getElementById('materia').value = "";
-            document.getElementById('flag').value = "";
             document.getElementById('conteudo').value = "";
-            document.getElementById('data').valueAsDate = new Date();
-        }
+        };
 
-        window.apagar = (id) => { if(confirm("Apagar nota?")) remove(ref(db, `notas/${id}`)); };
+        window.apagarNota = (id) => {
+            remove(ref(db, `usuarios/${userLogado.uid}/notas/${id}`));
+        };
     </script>
 </body>
 </html>
